@@ -269,9 +269,7 @@ public class MetodosCinza {
        double pr, auxpr;
        int aux = 0; 
        int nj;
-       
        matrizResultado = new int[nLinhas][nColunas];
-       pr = auxpr = 0;
        double histograma[] = new double[limite+1];
        
        for(int i = 0; i < limite; i++){
@@ -287,11 +285,6 @@ public class MetodosCinza {
        
        for(int i = 0; i < limite+1; i++){
            histograma[i] = histograma[i] / (nLinhas*nColunas);
-       }
-       
-       for(int i = 0; i < limite+1; i++){
-           pr = histograma[i];
-           auxpr += pr;
        }
        
        auxpr = 0;
