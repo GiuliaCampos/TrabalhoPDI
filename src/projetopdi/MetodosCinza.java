@@ -10,6 +10,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 
 /**
  *
@@ -262,4 +263,50 @@ public class MetodosCinza {
             }
         }
     }
+   
+   //Equalização do Histogtama
+   public void histograma(){
+       double pr, auxpr;
+       int aux = 0; 
+       int nj;
+       
+       matrizResultado = new int[nLinhas][nColunas];
+       pr = auxpr = 0;
+       double histograma[] = new double[limite+1];
+       
+       for(int i = 0; i < limite; i++){
+           histograma[i] = 0;
+       }
+       
+       for(int i = 0; i < nLinhas; i++){
+           for(int j = 0; j < nColunas; j++){
+               aux = matriz[i][j];
+               histograma[aux]++;
+           }
+       }
+       
+       for(int i = 0; i < limite+1; i++){
+           histograma[i] = histograma[i] / (nLinhas*nColunas);
+       }
+       
+       for(int i = 0; i < limite+1; i++){
+           pr = histograma[i];
+           auxpr += pr;
+       }
+       
+       auxpr = 0;
+       for(int i = 0; i < limite+1; i++){
+           pr = histograma[i];
+           histograma[i] = (limite - 1) * (auxpr + pr);
+           auxpr += pr;
+       }
+      
+       aux = 0;
+       for(int i = 0; i < nLinhas; i++){
+           for(int j = 0; j < nColunas; j++){
+               aux = matriz[i][j];
+               matrizResultado[i][j] = (int) histograma[aux];
+           }
+       }
+   }
 }

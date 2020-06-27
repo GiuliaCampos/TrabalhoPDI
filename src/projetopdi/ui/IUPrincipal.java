@@ -79,7 +79,7 @@ public class IUPrincipal extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        metodoSelecionadoCinza.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Escurecer Imagem", "Clarear Imagem", "Girar Imagem", "Tornar Negativo", "Fatiamento", "Transf. Gama", "Flip Horizontal" }));
+        metodoSelecionadoCinza.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Escurecer Imagem", "Clarear Imagem", "Girar Imagem", "Tornar Negativo", "Fatiamento", "Transf. Gama", "Flip Horizontal", "Equalização de Histograma" }));
         metodoSelecionadoCinza.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 metodoSelecionadoCinzaActionPerformed(evt);
@@ -223,6 +223,7 @@ public class IUPrincipal extends javax.swing.JFrame {
         //Fatiamento
         //Transf. Gama
         //Flip Horizontal
+        //Equalização de Histograma
 
         String resultado = (String) metodoSelecionadoCinza.getSelectedItem();
         String nomeArquivo;
@@ -322,6 +323,12 @@ public class IUPrincipal extends javax.swing.JFrame {
             }
             else if(resultado == "Flip Horizontal"){
                 metodos.flipHorizontal();
+                nLinhasNova = metodos.getMatrizResultado().length;
+                nColunasNova = metodos.getMatrizResultado()[0].length;
+                exibirImagemCinzaResultado(metodos.getMatrizResultado());
+            }
+            else if(resultado == "Equalização de Histograma"){
+                metodos.histograma();
                 nLinhasNova = metodos.getMatrizResultado().length;
                 nColunasNova = metodos.getMatrizResultado()[0].length;
                 exibirImagemCinzaResultado(metodos.getMatrizResultado());
