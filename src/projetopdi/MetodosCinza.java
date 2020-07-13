@@ -6,11 +6,15 @@
 package projetopdi;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -95,8 +99,8 @@ public class MetodosCinza {
             if("#".equals(linha.split(" ")[0])){ //Descartar o comentário
                 linha = buffRead1.readLine();
             }
-            setnColunas(Integer.parseInt(linha.split(" ")[0])); //armazena o número de linhas
-            setnLinhas(Integer.parseInt(linha.split(" ")[1])); //armazena o número de colunas
+            setnColunas(Integer.parseInt(linha.split(" ")[0])); //armazena o número de colunas
+            setnLinhas(Integer.parseInt(linha.split(" ")[1])); //armazena o número de linhas
 
             //Limite dos valores 0 - 255
             linha = buffRead1.readLine();
@@ -135,26 +139,29 @@ public class MetodosCinza {
     }
     
     //Escrever em arquivo
-    public void escreverMatriz(String nomeArquivo) throws FileNotFoundException{
+    public void escreverMatriz(String arquivo) throws FileNotFoundException, IOException{
+        OutputStream salvar = new FileOutputStream(arquivo);
+        String linha = "P2\n"+ nColunas +" "+ nLinhas +"\n" + limite +"\n";
+        byte [] salvando = linha.getBytes();
+        salvar.write(salvando);
         
-        //Pasta onde será armazenado o arquivo
-        String caminho =  "C:\\Users\\Giulia\\Documents\\Unesp\\PDI\\";
-        //System.out.println(nLinhas + " " + nColunas);
-        
-        PrintWriter pw = new PrintWriter(nomeArquivo + ".pgm");
-        
-        //Cabeçalho:
-        //P2 (PGM)
-        //nLinha Ncoluna
-        //limite (0 - 255)
-        pw.print("P2\n"+ nLinhas +" "+ nColunas +"\n" + limite +"\n");
-
         for(int i = 0; i < nLinhas; i++){
             for(int j = 0; j < nColunas; j++){
-                pw.print(matrizResultado[i][j] + " ");
+                salvando = String.valueOf(matrizResultado[i][j]).getBytes();
+                salvar.write(salvando);
+                salvando = "\n".getBytes();
+                salvar.write(salvando);
             }
         }
-        pw.close();
+        
+        salvar.close();
+    }
+    
+    public void matrizResultadoNovaMatriz(){
+        nLinhas = matrizResultado.length;
+        nColunas = matrizResultado[0].length;
+        matriz = new int [nLinhas][nColunas];
+        matriz = matrizResultado;
     }
     
     //Tornar imagem negativa
@@ -301,5 +308,90 @@ public class MetodosCinza {
                matrizResultado[i][j] = (int) histograma[aux];
            }
        }
+   }
+   
+   //Filtro Laplaciano com filtro 4 ao centro
+   public void laplaciano1(){
+       int soma = 0;
+       matrizResultado = new int[nLinhas][nColunas];
+       for(int i = 0; i < nLinhas; i++){
+           for(int j = 0; j < nColunas; j++){
+               if((i - 1) >= 0){
+                   soma += (-1)*(matriz[i-1][j]);
+               }
+               if((i+1) < nLinhas - 1){
+                   soma += (-1)*(matriz[i+1][j]);
+               }
+               if((j-1) >= 0){
+                   soma += (-1)*(matriz[i][j-1]);
+               }
+               if((j+1) < nColunas - 1){
+                   soma += (-1)*(matriz[i][j+1]);
+               }
+               soma += 4*(matriz[i][j]);
+               matrizResultado[i][j] = soma;
+               soma = 0;
+           }
+       }
+   }
+   
+   //Filtro Laplaciano com filtro 8 ao centro
+   public void laplaciano2(){
+       int soma = 0;
+       matrizResultado = new int[nLinhas][nColunas];
+       for(int i = 0; i < nLinhas; i++){
+           for(int j = 0; j < nColunas; j++){
+               if(((i-1) >= 0)&&((j-1) >= 0)){
+                   soma += (-1)*matriz[i-1][j-1];
+               }
+               if((i-1) >= 0){
+                   soma += (-1)*matriz[i-1][j];
+               }
+               if((j-1) >= 0){
+                   soma += (-1)*matriz[i][j-1];
+               }
+               if(((i+1) < nLinhas) && ((j+1) < nColunas)){
+                   soma += (-1)*matriz[i+1][j+1];
+               }
+               if((i+1) < nLinhas){
+                   soma += (-1)*matriz[i+1][j];
+               }
+               if((j+1) < nColunas){
+                   soma += (-1)*matriz[i][j+1];
+               }
+               soma  += 8*matriz[i][j];
+               matrizResultado[i][j] = soma;
+               soma = 0;
+           }
+       }
+   }
+   
+    public void somarMatrizes(String arquivo) throws FileNotFoundException, IOException{
+        int matrizNova[][] = new int [nLinhas][nColunas];
+        for(int i = 0; i < nLinhas; i++){
+            for(int j = 0; j < nColunas; j++){
+                
+                if((matriz[i][j] + matrizResultado[i][j]) > 255){
+                    matrizNova[i][j] = 255;
+                }
+                else matrizNova[i][j] = matriz[i][j] + matrizResultado[i][j];
+            }
+        }
+        
+        OutputStream salvar = new FileOutputStream(arquivo);
+        String linha = "P2\n"+ nColunas +" "+ nLinhas +"\n" + limite +"\n";
+        byte [] salvando = linha.getBytes();
+        salvar.write(salvando);
+        
+        for(int i = 0; i < nLinhas; i++){
+            for(int j = 0; j < nColunas; j++){
+                salvando = String.valueOf(matrizNova[i][j]).getBytes();
+                salvar.write(salvando);
+                salvando = "\n".getBytes();
+                salvar.write(salvando);
+            }
+        }
+        
+        salvar.close();
    }
 }

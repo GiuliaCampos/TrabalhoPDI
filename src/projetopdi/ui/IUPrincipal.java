@@ -79,7 +79,7 @@ public class IUPrincipal extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        metodoSelecionadoCinza.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Escurecer Imagem", "Clarear Imagem", "Girar Imagem", "Tornar Negativo", "Fatiamento", "Transf. Gama", "Flip Horizontal", "Equalização de Histograma" }));
+        metodoSelecionadoCinza.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Escurecer Imagem", "Clarear Imagem", "Girar Imagem", "Tornar Negativo", "Fatiamento", "Transf. Gama", "Flip Horizontal", "Equalização de Histograma", "Laplaciano (4 ao centro)", "Laplaciano (8 ao centro)" }));
         metodoSelecionadoCinza.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 metodoSelecionadoCinzaActionPerformed(evt);
@@ -141,10 +141,10 @@ public class IUPrincipal extends javax.swing.JFrame {
                         .addGap(46, 46, 46)
                         .addComponent(salvarArquivo))
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 802, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 788, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 526, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(54, 54, 54)
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 656, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(24, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -177,6 +177,7 @@ public class IUPrincipal extends javax.swing.JFrame {
                 menuRGB_.setEnabled(false);
                 pgmPPM = false;
                 try {
+                    nColunasNova = nLinhasNova = 0;
                     metodos = new MetodosCinza(file.getAbsolutePath());
                     nLinhas = metodos.getnLinhas();
                     nColunas = metodos.getnColunas();
@@ -193,6 +194,7 @@ public class IUPrincipal extends javax.swing.JFrame {
                 menuCinza_.setEnabled(false);
                 pgmPPM = true;
                 try {
+                    nColunasNova = nLinhasNova = 0;
                     metodos2 = new MetodosColorido(file.getAbsolutePath());
                     nLinhas = metodos2.getnLinhas();
                     nColunas = metodos2.getnColunas();
@@ -224,11 +226,30 @@ public class IUPrincipal extends javax.swing.JFrame {
         //Transf. Gama
         //Flip Horizontal
         //Equalização de Histograma
+        //Laplaciano (4 ao centro)
+        //Laplaciano (8 ao centro)
 
         String resultado = (String) metodoSelecionadoCinza.getSelectedItem();
         String nomeArquivo;
         
         if((metodos.getnLinhas() > 1)||(metodos2.getnLinhas() > 1)){
+            if(nColunasNova > 1){
+                int opcao = Integer.parseInt(JOptionPane.showInputDialog(this, "Deseja seguir editando a imagem resultado?(1 - Sim) (Outro - Não)  "));
+                if(opcao == 1){
+                    int linhas, colunas;
+                    linhas = metodos.getMatrizResultado().length;
+                    colunas = metodos.getMatrizResultado()[0].length;
+                    
+                    int imgResultado [][] = new int[linhas][colunas];
+                    imgResultado = metodos.getMatrizResultado();
+                    metodos.matrizResultadoNovaMatriz();
+                    
+                    nLinhas = metodos.getnLinhas();
+                    nColunas = metodos.getnColunas();
+                    
+                    exibirImagemCinza(metodos.getMatriz());
+                }
+            }
             if(resultado == "Escurecer Imagem"){
                 int valor = Integer.parseInt(JOptionPane.showInputDialog(this, "Entre com o valor para escurecer"));
                 //verificar se valor é menor que limite
@@ -332,6 +353,48 @@ public class IUPrincipal extends javax.swing.JFrame {
                 nLinhasNova = metodos.getMatrizResultado().length;
                 nColunasNova = metodos.getMatrizResultado()[0].length;
                 exibirImagemCinzaResultado(metodos.getMatrizResultado());
+            }
+            else if(resultado == "Laplaciano (4 ao centro)"){
+                metodos.laplaciano1();
+                nLinhasNova = metodos.getMatrizResultado().length;
+                nColunasNova = metodos.getMatrizResultado()[0].length;
+                exibirImagemCinzaResultado(metodos.getMatrizResultado());
+                int opcao = Integer.parseInt(JOptionPane.showInputDialog(this, "Deseja somar com a imagem original? (1- SIM)"));
+                if(opcao == 1){
+                    JFileChooser salvandoArquivo = new JFileChooser();
+                    int opt = salvandoArquivo.showSaveDialog(this);
+                    if (opt != JFileChooser.APPROVE_OPTION) return;
+                    File salvarArquivoEscolhido = salvandoArquivo.getSelectedFile();
+                    File salvarArquivo = new File(salvarArquivoEscolhido.getPath()+".pgm");
+                    
+                    try {
+                        metodos.somarMatrizes(salvarArquivo.getPath());
+                    } catch (IOException ex) {
+                        Logger.getLogger(IUPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+
+                }
+            }
+            else if(resultado == "Laplaciano (8 ao centro)"){
+                metodos.laplaciano2();
+                nLinhasNova = metodos.getMatrizResultado().length;
+                nColunasNova = metodos.getMatrizResultado()[0].length;
+                exibirImagemCinzaResultado(metodos.getMatrizResultado());
+                int opcao = Integer.parseInt(JOptionPane.showInputDialog(this, "Deseja somar com a imagem original? (1- SIM)"));
+                if(opcao == 1){
+                    JFileChooser salvandoArquivo = new JFileChooser();
+                    int opt = salvandoArquivo.showSaveDialog(this);
+                    if (opt != JFileChooser.APPROVE_OPTION) return;
+                    File salvarArquivoEscolhido = salvandoArquivo.getSelectedFile();
+                    File salvarArquivo = new File(salvarArquivoEscolhido.getPath()+".pgm");
+                    
+                    try {
+                        metodos.somarMatrizes(salvarArquivo.getPath());
+                    } catch (IOException ex) {
+                        Logger.getLogger(IUPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+
+                }
             }
             else if(resultado == "Colorido - Cinza"){
                 if(metodos2.getnLinhas() > 1){
@@ -487,15 +550,16 @@ public class IUPrincipal extends javax.swing.JFrame {
     }//GEN-LAST:event_metodoSelecionadoCinzaActionPerformed
 
     private void salvarArquivoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_salvarArquivoActionPerformed
-        String nomeArquivo;
-        nomeArquivo = JOptionPane.showInputDialog(this, "Entre com o nome do novo arquivo (sem .pgm) ");
-        
+        JFileChooser salvandoArquivo = new JFileChooser();
+        int opt = salvandoArquivo.showSaveDialog(this);
+        if (opt != JFileChooser.APPROVE_OPTION) return;
+        File salvarArquivoEscolhido = salvandoArquivo.getSelectedFile();
+        File salvarArquivo = new File(salvarArquivoEscolhido.getPath()+".pgm");
         try {
-            metodos.escreverMatriz(nomeArquivo);
-        } catch (FileNotFoundException ex) {
+            metodos.escreverMatriz(salvarArquivo.getPath());
+        } catch (IOException ex) {
             Logger.getLogger(IUPrincipal.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
     }//GEN-LAST:event_salvarArquivoActionPerformed
 
     private void exibirImagemCinza(int matriz[][]){ 

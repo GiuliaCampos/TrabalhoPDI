@@ -93,12 +93,12 @@
                       <Component id="salvarArquivo" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" attributes="0">
-                      <Component id="jScrollPane1" min="-2" pref="802" max="-2" attributes="0"/>
-                      <EmptySpace type="separate" max="-2" attributes="0"/>
-                      <Component id="jScrollPane2" min="-2" pref="788" max="-2" attributes="0"/>
+                      <Component id="jScrollPane1" min="-2" pref="526" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="54" max="-2" attributes="0"/>
+                      <Component id="jScrollPane2" min="-2" pref="656" max="-2" attributes="0"/>
                   </Group>
               </Group>
-              <EmptySpace max="32767" attributes="0"/>
+              <EmptySpace pref="24" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -125,7 +125,7 @@
     <Component class="javax.swing.JComboBox" name="metodoSelecionadoCinza">
       <Properties>
         <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-          <StringArray count="8">
+          <StringArray count="10">
             <StringItem index="0" value="Escurecer Imagem"/>
             <StringItem index="1" value="Clarear Imagem"/>
             <StringItem index="2" value="Girar Imagem"/>
@@ -134,6 +134,8 @@
             <StringItem index="5" value="Transf. Gama"/>
             <StringItem index="6" value="Flip Horizontal"/>
             <StringItem index="7" value="Equaliza&#xe7;&#xe3;o de Histograma"/>
+            <StringItem index="8" value="Laplaciano (4 ao centro)"/>
+            <StringItem index="9" value="Laplaciano (8 ao centro)"/>
           </StringArray>
         </Property>
       </Properties>
