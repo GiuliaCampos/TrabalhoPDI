@@ -329,7 +329,9 @@ public class MetodosCinza {
                    soma += (-1)*(matriz[i][j+1]);
                }
                soma += 4*(matriz[i][j]);
-               matrizResultado[i][j] = soma;
+               soma = soma/4;
+               if(soma > 255) matriz[i][j] = 255;
+               else matrizResultado[i][j] = soma;
                soma = 0;
            }
        }
@@ -360,7 +362,9 @@ public class MetodosCinza {
                    soma += (-1)*matriz[i][j+1];
                }
                soma  += 8*matriz[i][j];
-               matrizResultado[i][j] = soma;
+               soma = soma/8;
+               if(soma > 255) matriz[i][j] = 255;
+               else matrizResultado[i][j] = soma;
                soma = 0;
            }
        }
@@ -371,8 +375,11 @@ public class MetodosCinza {
         for(int i = 0; i < nLinhas; i++){
             for(int j = 0; j < nColunas; j++){
                 
-                if((matriz[i][j] + matrizResultado[i][j]) > 255){
-                    matrizNova[i][j] = 255;
+                if((matriz[i][j] + matrizResultado[i][j]) >= 255){
+                    matrizNova[i][j] = matriz[i][j];
+                }
+                else if(matriz[i][j] + matrizResultado[i][j] <= 0){
+                    matrizNova[i][j] = matriz[i][j];
                 }
                 else matrizNova[i][j] = matriz[i][j] + matrizResultado[i][j];
             }
@@ -394,4 +401,40 @@ public class MetodosCinza {
         
         salvar.close();
    }
+    
+   public void media(int filtro){
+       matrizResultado = new int[nLinhas][nColunas];
+       int auxFiltro = (int)filtro/2;
+       int soma = 0;
+       int media = filtro*filtro;
+       
+       for(int i = 0; i < nLinhas; i++){
+           for(int j = 0; j < nColunas; j++){
+               for(int auxI = -auxFiltro; auxI < filtro - auxFiltro; auxI++){
+                   for(int auxJ = -auxFiltro; auxJ < filtro - auxFiltro; auxJ++){
+                       if((i+auxI >= 0)&&(i+auxI < nLinhas)){
+                           if((j+auxJ >= 0)&&(j+auxJ < nColunas)){
+                               soma += matriz[i+auxI][j+auxJ];
+                           }
+                       }
+                   }
+               }
+               if((int)(soma/media) > 255) matrizResultado[i][j] = 255;
+               else matrizResultado[i][j] = (int)(soma/media);
+               soma = 0;
+           }
+       }
+   }
+   
+   public void binarizacao(int valor){
+       matrizResultado = new int[nLinhas][nColunas];
+       
+       for(int i = 0; i < nLinhas; i++){
+           for(int j = 0; j < nColunas; j++){
+               if(matriz[i][j] >= valor) matrizResultado[i][j] = 255;
+               else matrizResultado[i][j] = 0;
+           }
+       }
+   }
+   
 }

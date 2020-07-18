@@ -79,7 +79,7 @@ public class IUPrincipal extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        metodoSelecionadoCinza.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Escurecer Imagem", "Clarear Imagem", "Girar Imagem", "Tornar Negativo", "Fatiamento", "Transf. Gama", "Flip Horizontal", "Equalização de Histograma", "Laplaciano (4 ao centro)", "Laplaciano (8 ao centro)" }));
+        metodoSelecionadoCinza.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Escurecer Imagem", "Clarear Imagem", "Girar Imagem", "Tornar Negativo", "Fatiamento", "Transf. Gama", "Flip Horizontal", "Equalização de Histograma", "Laplaciano (4 ao centro)", "Laplaciano (8 ao centro)", "Media", "Binarização" }));
         metodoSelecionadoCinza.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 metodoSelecionadoCinzaActionPerformed(evt);
@@ -228,7 +228,8 @@ public class IUPrincipal extends javax.swing.JFrame {
         //Equalização de Histograma
         //Laplaciano (4 ao centro)
         //Laplaciano (8 ao centro)
-
+        //Media
+        //Binarização
         String resultado = (String) metodoSelecionadoCinza.getSelectedItem();
         String nomeArquivo;
         
@@ -395,6 +396,20 @@ public class IUPrincipal extends javax.swing.JFrame {
                     }
 
                 }
+            }
+            else if(resultado == "Media"){
+                int filtro = Integer.parseInt(JOptionPane.showInputDialog(this, "Insira a dimensão da Janela: "));
+                metodos.media(filtro);
+                nLinhasNova = metodos.getMatrizResultado().length;
+                nColunasNova = metodos.getMatrizResultado()[0].length;
+                exibirImagemCinzaResultado(metodos.getMatrizResultado());
+            }
+            else if(resultado == "Binarização"){
+                int valor = Integer.parseInt(JOptionPane.showInputDialog(this, "Insira um valor para a binarização: "));
+                metodos.binarizacao(valor);
+                nLinhasNova = metodos.getMatrizResultado().length;
+                nColunasNova = metodos.getMatrizResultado()[0].length;
+                exibirImagemCinzaResultado(metodos.getMatrizResultado());
             }
             else if(resultado == "Colorido - Cinza"){
                 if(metodos2.getnLinhas() > 1){
