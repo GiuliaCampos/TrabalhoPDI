@@ -10,8 +10,10 @@ import java.awt.image.WritableRaster;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -42,6 +44,7 @@ public class IUPrincipal extends javax.swing.JFrame {
         menuCinza_.setEnabled(false);
         menuRGB_.setEnabled(false);
         metodoSelecionadoCinza.setEnabled(false);
+        metodoSelecionadoColorido.setEnabled(false);
     }
 
     /**
@@ -66,6 +69,7 @@ public class IUPrincipal extends javax.swing.JFrame {
         jScrollPane2 = new javax.swing.JScrollPane();
         jLabel_imagemResultado = new javax.swing.JLabel();
         salvarArquivo = new javax.swing.JButton();
+        metodoSelecionadoColorido = new javax.swing.JComboBox<>();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         abrir = new javax.swing.JMenuItem();
@@ -105,6 +109,8 @@ public class IUPrincipal extends javax.swing.JFrame {
             }
         });
 
+        metodoSelecionadoColorido.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Separar RGB", "Separar CMY", "Separar HSI" }));
+
         jMenu1.setText("Menu");
 
         abrir.setText("Abrir imagem");
@@ -137,13 +143,17 @@ public class IUPrincipal extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(metodoSelecionadoCinza, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
-                        .addComponent(confirmarButton)
-                        .addGap(46, 46, 46)
-                        .addComponent(salvarArquivo))
+                        .addComponent(metodoSelecionadoColorido, javax.swing.GroupLayout.PREFERRED_SIZE, 173, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(confirmarButton))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 526, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 526, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(54, 54, 54)
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 656, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 656, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(89, 89, 89)
+                        .addComponent(salvarArquivo)))
                 .addContainerGap(24, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -153,7 +163,8 @@ public class IUPrincipal extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(metodoSelecionadoCinza, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(confirmarButton)
-                    .addComponent(salvarArquivo))
+                    .addComponent(salvarArquivo)
+                    .addComponent(metodoSelecionadoColorido, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 822, Short.MAX_VALUE)
@@ -184,9 +195,10 @@ public class IUPrincipal extends javax.swing.JFrame {
                     
                     exibirImagemCinza(metodos.getMatriz());
                     metodoSelecionadoCinza.setEnabled(true);
+                    metodoSelecionadoColorido.setEnabled(false);
                     menuCinza_.setEnabled(true);
                 } catch (IOException ex) {
-                    System.out.println("problem accessing file"+file.getAbsolutePath());
+                    System.out.println("problem accessing file "+file.getAbsolutePath());
                 }
             }
             //P3 e P6
@@ -198,12 +210,13 @@ public class IUPrincipal extends javax.swing.JFrame {
                     metodos2 = new MetodosColorido(file.getAbsolutePath());
                     nLinhas = metodos2.getnLinhas();
                     nColunas = metodos2.getnColunas();
+                    metodoSelecionadoColorido.setEnabled(true);
                     metodoSelecionadoCinza.setEnabled(false);
                     
                     //exibirImagemCinza(metodos.getMatriz());
                     //menuCinza_.setEnabled(true);
                 } catch (IOException ex) {
-                    System.out.println("problem accessing file"+file.getAbsolutePath());
+                    System.out.println("problem accessing file "+file.getAbsolutePath());
                 }
             }
         } else {
@@ -220,8 +233,6 @@ public class IUPrincipal extends javax.swing.JFrame {
         //Clarear Imagem
         //Girar Imagem
         //Tornar Negativo
-        //Colorido - Cinza
-        //Cinza - Colorido
         //Fatiamento
         //Transf. Gama
         //Flip Horizontal
@@ -230,7 +241,13 @@ public class IUPrincipal extends javax.swing.JFrame {
         //Laplaciano (8 ao centro)
         //Media
         //Binarização
-        String resultado = (String) metodoSelecionadoCinza.getSelectedItem();
+        String resultado;
+        if(!pgmPPM){ //Imagem Cinza
+            resultado = (String) metodoSelecionadoCinza.getSelectedItem();
+        }
+        else{ //Imagem Colorida
+            resultado = (String) metodoSelecionadoColorido.getSelectedItem();
+        }
         String nomeArquivo;
         
         if((metodos.getnLinhas() > 1)||(metodos2.getnLinhas() > 1)){
@@ -411,70 +428,45 @@ public class IUPrincipal extends javax.swing.JFrame {
                 nColunasNova = metodos.getMatrizResultado()[0].length;
                 exibirImagemCinzaResultado(metodos.getMatrizResultado());
             }
-            else if(resultado == "Colorido - Cinza"){
+//------------------------------------------Métodos Coloridos----------------------------------------------------------------------------------------------
+            //Métodos Coloridos disponíveis:
+            //Separar RGB
+            //Separar CMY
+            //Separar HSI
+            //Cinza - RGB
+            else if(resultado == "Separar RGB"){
                 if(metodos2.getnLinhas() > 1){
-                    int matrizR[][] = new int[metodos2.getnLinhas()][metodos2.getnColunas()];
-                    int matrizG[][] = new int[metodos2.getnLinhas()][metodos2.getnColunas()];
-                    int matrizB[][] = new int[metodos2.getnLinhas()][metodos2.getnColunas()];
+                    metodos2.separarRGB();
+                    int matrizR[][] = new int [metodos2.getnLinhas()][metodos2.getnColunas()];
+                    matrizR = metodos2.getMatrizR();
+                    int matrizG[][] = new int [metodos2.getnLinhas()][metodos2.getnColunas()];
+                    matrizG = metodos2.getMatrizG();
+                    int matrizB[][] = new int [metodos2.getnLinhas()][metodos2.getnColunas()];
+                    matrizB = metodos2.getMatrizB();
+                   
+                    salvarArquivo(matrizR, "Arquivo Vermelho - R");
+                    salvarArquivo(matrizG, "Arquivo Verde - G");
+                    salvarArquivo(matrizB, "Arquivo Azul - B");
                     
-                    for(int i = 0; i < metodos2.getnLinhas(); i++){
-                        for(int j = 0; j < metodos2.getnColunas(); j++){
-                            matrizR[i][j] = metodos2.getMatriz()[i][j].getR();
-                            matrizG[i][j] = metodos2.getMatriz()[i][j].getG();
-                            matrizB[i][j] = metodos2.getMatriz()[i][j].getB();
-                        }
-                    }
-                    
-                    String nomeArquivoVermelho = JOptionPane.showInputDialog("Nome arquivo escala vermelho");
-                    String nomeArquivoVerde = JOptionPane.showInputDialog("Nome arquivo escala verde");
-                    String nomeArquivoAzul = JOptionPane.showInputDialog("Nome arquivo escala azul");
-                    
-                    String caminho =  "C:\\Users\\Giulia\\Documents\\Unesp\\PDI\\";
-
-                    PrintWriter pwR = null;
-                    PrintWriter pwG = null;
-                    PrintWriter pwB = null;
-                    
-                    try {
-                        pwR = new PrintWriter(nomeArquivoVermelho + ".pgm");
-                    } catch (FileNotFoundException ex) {
-                        Logger.getLogger(IUPrincipal.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                    
-                    try {
-                        pwG = new PrintWriter(nomeArquivoVerde + ".pgm");
-                    } catch (FileNotFoundException ex) {
-                        Logger.getLogger(IUPrincipal.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                    
-                    try {
-                        pwB = new PrintWriter(nomeArquivoAzul + ".pgm");
-                    } catch (FileNotFoundException ex) {
-                        Logger.getLogger(IUPrincipal.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-
-                    //Cabeçalho:
-                    //P2 (PGM)
-                    //nLinha Ncoluna
-                    //limite (0 - 255)
-                    pwR.print("P2\n"+ metodos2.getnLinhas() +" "+ metodos2.getnColunas() +"\n"+ metodos2.getLimite() +"\n");
-                    pwG.print("P2\n"+ metodos2.getnLinhas() +" "+ metodos2.getnColunas() +"\n"+ metodos2.getLimite() +"\n");
-                    pwB.print("P2\n"+ metodos2.getnLinhas() +" "+ metodos2.getnColunas() +"\n"+ metodos2.getLimite() +"\n");
-
-                    for(int i = 0; i < metodos2.getnLinhas(); i++){
-                        for(int j = 0; j < metodos2.getnColunas(); j++){
-                            pwR.print(matrizR[i][j] + "\n");
-                            pwG.print(matrizG[i][j] + "\n");
-                            pwB.print(matrizB[i][j] + "\n");
-                        }
-                    }
-                    pwR.close();
-                    pwG.close();
-                    pwB.close();
-                    
-                }else JOptionPane.showMessageDialog(this, "Abra um arquivo ppm antes");
+                }else JOptionPane.showMessageDialog(this, "Abra um arquivo antes");
             }
-            else if(resultado == "Cinza - Colorido"){
+            else if(resultado == "Separar CMY"){
+                metodos2.separaCMY();
+                int matrizC[][] = new int [metodos2.getnLinhas()][metodos2.getnColunas()];
+                matrizC = metodos2.getMatrizC();
+                int matrizM[][] = new int [metodos2.getnLinhas()][metodos2.getnColunas()];
+                matrizM = metodos2.getMatrizM();
+                int matrizY[][] = new int [metodos2.getnLinhas()][metodos2.getnColunas()];
+                matrizY = metodos2.getMatrizY();
+                   
+                salvarArquivo(matrizC, "Arquivo Ciano - C");
+                salvarArquivo(matrizM, "Arquivo Magento - M");
+                salvarArquivo(matrizY, "Arquivo Amarelo - Y");
+            }
+            else if(resultado == "Separar HSI"){
+                
+            }
+            else if(resultado == "Cinza - RGB"){
                 int returnValR = fileChooserR.showOpenDialog(this);
                 int returnValG = fileChooserG.showOpenDialog(this);
                 int returnValB = fileChooserB.showOpenDialog(this);
@@ -581,7 +573,6 @@ public class IUPrincipal extends javax.swing.JFrame {
         imagem_pgm = new BufferedImage(nColunas, nLinhas, BufferedImage.TYPE_BYTE_GRAY);
         WritableRaster raster = imagem_pgm.getRaster();
         int num;
-        
         for(int i = 0; i < nLinhas; i++)
             for(int j = 0; j < nColunas; j++){
                 num = matriz[i][j];
@@ -605,6 +596,34 @@ public class IUPrincipal extends javax.swing.JFrame {
         jScrollPane2.setSize(imagem_pgm.getWidth(), imagem_pgm.getHeight());           
         setSize(imagem_pgm.getWidth(), imagem_pgm.getHeight());        
         jLabel_imagemResultado.setIcon(new ImageIcon(imagem_pgm));
+    }
+    
+    public void salvarArquivo(int matriz[][], String texto){
+        JFileChooser salvandoArquivo = new JFileChooser();
+        salvandoArquivo.setDialogTitle(texto);
+        int opt = salvandoArquivo.showSaveDialog(this);
+        if (opt != JFileChooser.APPROVE_OPTION) return;
+        File salvarArquivoEscolhido = salvandoArquivo.getSelectedFile();
+        File salvarArquivo = new File(salvarArquivoEscolhido.getPath()+".pgm");
+        try {
+            OutputStream salvar = new FileOutputStream(salvarArquivo.getPath());
+            String linha = "P2\n"+ matriz.length +" "+ matriz[0].length +"\n" + 255 +"\n";
+            byte [] salvando = linha.getBytes();
+            salvar.write(salvando);
+
+            for(int i = 0; i < nLinhas; i++){
+                for(int j = 0; j < nColunas; j++){
+                    salvando = String.valueOf(matriz[i][j]).getBytes();
+                    salvar.write(salvando);
+                    salvando = "\n".getBytes();
+                    salvar.write(salvando);
+                }
+            }
+
+            salvar.close();
+        } catch (IOException ex) {
+            Logger.getLogger(IUPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     /**
      * @param args the command line arguments
@@ -657,6 +676,7 @@ public class IUPrincipal extends javax.swing.JFrame {
     private javax.swing.JMenu menuCinza_;
     private javax.swing.JMenu menuRGB_;
     private javax.swing.JComboBox<String> metodoSelecionadoCinza;
+    private javax.swing.JComboBox<String> metodoSelecionadoColorido;
     private javax.swing.JMenuItem sair;
     private javax.swing.JButton salvarArquivo;
     // End of variables declaration//GEN-END:variables
