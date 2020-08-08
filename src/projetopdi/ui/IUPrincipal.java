@@ -5,6 +5,7 @@
  */
 package projetopdi.ui;
 
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
 import java.io.BufferedReader;
@@ -33,6 +34,7 @@ public class IUPrincipal extends javax.swing.JFrame {
     MetodosColorido metodos2 = new MetodosColorido();
     private boolean pgmPPM; //se pgm 0 senao 1 (ppm)
     public BufferedImage imagem_pgm;
+    public BufferedImage imagem_ppm;
     private int nLinhas, nColunas;
     private int nLinhasNova, nColunasNova;
     
@@ -212,6 +214,9 @@ public class IUPrincipal extends javax.swing.JFrame {
                     nColunas = metodos2.getnColunas();
                     metodoSelecionadoColorido.setEnabled(true);
                     metodoSelecionadoCinza.setEnabled(false);
+                    
+                    exibirImagemColorida(metodos2.getMatriz());
+                    
                     
                     //exibirImagemCinza(metodos.getMatriz());
                     //menuCinza_.setEnabled(true);
@@ -596,6 +601,28 @@ public class IUPrincipal extends javax.swing.JFrame {
         jScrollPane2.setSize(imagem_pgm.getWidth(), imagem_pgm.getHeight());           
         setSize(imagem_pgm.getWidth(), imagem_pgm.getHeight());        
         jLabel_imagemResultado.setIcon(new ImageIcon(imagem_pgm));
+    }
+    
+    public void exibirImagemColorida(Rgb matriz[][]){
+        imagem_ppm = new BufferedImage(nColunas, nLinhas, BufferedImage.TYPE_INT_RGB);
+        int r, g, b, rgb;
+        
+        for(int i = 0; i < nColunas; i++){
+            for(int j = 0; j < nLinhas; j++){
+                r = matriz[i][j].getR();
+                g = matriz[i][j].getG();
+                b = matriz[i][j].getB();
+                
+                Color myColor = new Color(r,g,b);
+                rgb = myColor.getRGB();
+                
+                imagem_ppm.setRGB(j, i, rgb);
+            }
+        }
+        
+        jScrollPane1.setSize(imagem_ppm.getWidth(), imagem_ppm.getHeight());
+        setSize(imagem_ppm.getWidth(), imagem_ppm.getHeight());
+        jLabel_imagem.setIcon(new ImageIcon(imagem_ppm));
     }
     
     public void salvarArquivo(int matriz[][], String texto){
