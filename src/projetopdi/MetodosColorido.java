@@ -224,12 +224,6 @@ public class MetodosColorido {
                 matrizB[i][j] = matriz[i][j].getB();
             }
         }
-        
-//        for(int i = 0; i < nLinhas; i++){
-//            for(int j = 0; j < nColunas; j++){
-//                System.out.println("R: " + matrizR[i][j] + " G: " + matrizG[i][j] + " B: " + matrizB[i][j]);
-//            }
-//        }
    }
     
     public void separaCMY(){
@@ -255,29 +249,28 @@ public class MetodosColorido {
         
         for(int k = 0; k < nLinhas; k++){
             for(int j = 0; j < nColunas; j++){
-                r = matriz[k][j].getR()/(matriz[k][j].getR() + matriz[k][j].getG() + matriz[k][j].getB());
-                g = matriz[k][j].getG()/(matriz[k][j].getR() + matriz[k][j].getG() + matriz[k][j].getB());
-                b = matriz[k][j].getB()/(matriz[k][j].getR() + matriz[k][j].getG() + matriz[k][j].getB());
+                double aux2 = matriz[k][j].getR() + matriz[k][j].getG() + matriz[k][j].getB();
+                r = matriz[k][j].getR()/ aux2;
+                g = matriz[k][j].getG()/aux2;
+                b = matriz[k][j].getB()/aux2;
                 
-                aux = (0.5 * (r - g)+ (r - b))/(Math.sqrt((r - g)*(r - g) + (r - b)*(g - b)));
+                aux = (0.5 * ((r - g)+ (r - b)))/(Math.sqrt(((r - g)*(r - g)) + ((r - b)*(g - b))));
                 if(aux > 1) aux = 1;
                 if(aux < -1) aux = -1;
                 h = Math.acos(aux);
-                if(b < g) h = 2*Math.PI - h;
+                if(b > g) h = 2*Math.PI - h;
                 
                 if(r <= g && r <=b) s = 1- 3*r;
                 else if(g <= r && g <=b) s = 1- 3*g;
                 else s = 1- 3*b;
                 
-                i = (matriz[k][j].getR() + matriz[k][j].getG() + matriz[k][j].getB())/3;
+                i = (matriz[k][j].getR() + matriz[k][j].getG() + matriz[k][j].getB())/(3 * 255);
                 
                 matrizH[k][j] = (int)h;
                 matrizS[k][j] = (int)s;
                 matrizI[k][j] = (int)i;
             }
         }
-        
-        
     }
     
 }

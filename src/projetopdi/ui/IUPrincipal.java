@@ -469,7 +469,17 @@ public class IUPrincipal extends javax.swing.JFrame {
                 salvarArquivo(matrizY, "Arquivo Amarelo - Y");
             }
             else if(resultado == "Separar HSI"){
+                metodos2.seprarHSI();
+                int matrizH[][] = new int[metodos2.getnLinhas()][metodos2.getnColunas()];
+                matrizH = metodos2.getMatrizH();
+                int matrizS[][] = new int[metodos2.getnLinhas()][metodos2.getnColunas()];
+                matrizS = metodos2.getMatrizS();
+                int matrizI[][] = new int[metodos2.getnLinhas()][metodos2.getnColunas()];
+                matrizI = metodos2.getMatrizI();
                 
+                salvarArquivo(matrizH, "Arquivo Hue - H");
+                salvarArquivo(matrizS, "Arquivo Saturação - S");
+                salvarArquivo(matrizI, "Arquivo Intensidade - I");
             }
             else if(resultado == "Cinza - RGB"){
                 int returnValR = fileChooserR.showOpenDialog(this);
