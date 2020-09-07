@@ -46,6 +46,14 @@
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="abrirActionPerformed"/>
               </Events>
             </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="leituraArquivo">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Abrir sequencia em arquivo"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="leituraArquivoActionPerformed"/>
+              </Events>
+            </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="sair">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Sair"/>
@@ -132,7 +140,7 @@
     <Component class="javax.swing.JComboBox" name="metodoSelecionadoCinza">
       <Properties>
         <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-          <StringArray count="12">
+          <StringArray count="13">
             <StringItem index="0" value="Escurecer Imagem"/>
             <StringItem index="1" value="Clarear Imagem"/>
             <StringItem index="2" value="Girar Imagem"/>
@@ -144,7 +152,8 @@
             <StringItem index="8" value="Laplaciano (4 ao centro)"/>
             <StringItem index="9" value="Laplaciano (8 ao centro)"/>
             <StringItem index="10" value="Media"/>
-            <StringItem index="11" value="Binariza&#xe7;&#xe3;o"/>
+            <StringItem index="11" value="Mediana"/>
+            <StringItem index="12" value="Binariza&#xe7;&#xe3;o"/>
           </StringArray>
         </Property>
       </Properties>

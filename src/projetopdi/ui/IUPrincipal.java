@@ -16,6 +16,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.nio.file.Files;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.ImageIcon;
@@ -30,14 +31,16 @@ import projetopdi.Rgb;
  * @author Giulia
  */
 public class IUPrincipal extends javax.swing.JFrame {
+
     MetodosCinza metodos = new MetodosCinza();
     MetodosColorido metodos2 = new MetodosColorido();
     private boolean pgmPPM; //se pgm 0 senao 1 (ppm)
     public BufferedImage imagem_pgm;
     public BufferedImage imagem_ppm;
-    private int nLinhas, nColunas;
+    private int nLinhas = 0;
+    private int nColunas = 0;
     private int nLinhasNova, nColunasNova;
-    
+
     /**
      * Creates new form IUPrincipal
      */
@@ -75,6 +78,7 @@ public class IUPrincipal extends javax.swing.JFrame {
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         abrir = new javax.swing.JMenuItem();
+        leituraArquivo = new javax.swing.JMenuItem();
         sair = new javax.swing.JMenuItem();
 
         fileChooser.setDialogTitle("Escolher arquivo");
@@ -85,7 +89,7 @@ public class IUPrincipal extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        metodoSelecionadoCinza.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Escurecer Imagem", "Clarear Imagem", "Girar Imagem", "Tornar Negativo", "Fatiamento", "Transf. Gama", "Flip Horizontal", "Equalização de Histograma", "Laplaciano (4 ao centro)", "Laplaciano (8 ao centro)", "Media", "Binarização" }));
+        metodoSelecionadoCinza.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Escurecer Imagem", "Clarear Imagem", "Girar Imagem", "Tornar Negativo", "Fatiamento", "Transf. Gama", "Flip Horizontal", "Equalização de Histograma", "Laplaciano (4 ao centro)", "Laplaciano (8 ao centro)", "Media", "Mediana", "Binarização" }));
         metodoSelecionadoCinza.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 metodoSelecionadoCinzaActionPerformed(evt);
@@ -122,6 +126,14 @@ public class IUPrincipal extends javax.swing.JFrame {
             }
         });
         jMenu1.add(abrir);
+
+        leituraArquivo.setText("Abrir sequencia em arquivo");
+        leituraArquivo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                leituraArquivoActionPerformed(evt);
+            }
+        });
+        jMenu1.add(leituraArquivo);
 
         sair.setText("Sair");
         sair.addActionListener(new java.awt.event.ActionListener() {
@@ -180,13 +192,13 @@ public class IUPrincipal extends javax.swing.JFrame {
     private void abrirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_abrirActionPerformed
         JFileChooser jFile = new JFileChooser();
         int returnVal = jFile.showOpenDialog(this);
-        
+
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File file = jFile.getSelectedFile();
             String a[] = file.getAbsolutePath().split("\\.");
-            
+
             //P2 e P5
-            if("pgm".equals(a[a.length-1])){
+            if ("pgm".equals(a[a.length - 1])) {
                 menuRGB_.setEnabled(false);
                 pgmPPM = false;
                 try {
@@ -194,17 +206,16 @@ public class IUPrincipal extends javax.swing.JFrame {
                     metodos = new MetodosCinza(file.getAbsolutePath());
                     nLinhas = metodos.getnLinhas();
                     nColunas = metodos.getnColunas();
-                    
+
                     exibirImagemCinza(metodos.getMatriz());
                     metodoSelecionadoCinza.setEnabled(true);
                     metodoSelecionadoColorido.setEnabled(false);
                     menuCinza_.setEnabled(true);
                 } catch (IOException ex) {
-                    System.out.println("problem accessing file "+file.getAbsolutePath());
+                    System.out.println("problem accessing file " + file.getAbsolutePath());
                 }
-            }
-            //P3 e P6
-            else if("ppm".equals(a[a.length-1])){;
+            } //P3 e P6
+            else if ("ppm".equals(a[a.length - 1])) {;
                 menuCinza_.setEnabled(false);
                 pgmPPM = true;
                 try {
@@ -214,14 +225,13 @@ public class IUPrincipal extends javax.swing.JFrame {
                     nColunas = metodos2.getnColunas();
                     metodoSelecionadoColorido.setEnabled(true);
                     metodoSelecionadoCinza.setEnabled(false);
-                    
+
                     exibirImagemColorida(metodos2.getMatriz());
-                    
-                    
+
                     //exibirImagemCinza(metodos.getMatriz());
                     //menuCinza_.setEnabled(true);
                 } catch (IOException ex) {
-                    System.out.println("problem accessing file "+file.getAbsolutePath());
+                    System.out.println("problem accessing file " + file.getAbsolutePath());
                 }
             }
         } else {
@@ -230,7 +240,7 @@ public class IUPrincipal extends javax.swing.JFrame {
     }//GEN-LAST:event_abrirActionPerformed
 
     private void sairActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sairActionPerformed
-        System.exit(0); 
+        System.exit(0);
     }//GEN-LAST:event_sairActionPerformed
 
     private void confirmarButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_confirmarButtonActionPerformed
@@ -245,151 +255,153 @@ public class IUPrincipal extends javax.swing.JFrame {
         //Laplaciano (4 ao centro)
         //Laplaciano (8 ao centro)
         //Media
+        //Mediana
         //Binarização
         String resultado;
-        if(!pgmPPM){ //Imagem Cinza
+        if (!pgmPPM) { //Imagem Cinza
             resultado = (String) metodoSelecionadoCinza.getSelectedItem();
-        }
-        else{ //Imagem Colorida
+        } else { //Imagem Colorida
             resultado = (String) metodoSelecionadoColorido.getSelectedItem();
         }
         String nomeArquivo;
-        
-        if((metodos.getnLinhas() > 1)||(metodos2.getnLinhas() > 1)){
-            if(nColunasNova > 1){
+
+        if ((metodos.getnLinhas() > 1) || (metodos2.getnLinhas() > 1)) {
+            if (nColunasNova > 1) {
                 int opcao = Integer.parseInt(JOptionPane.showInputDialog(this, "Deseja seguir editando a imagem resultado?(1 - Sim) (Outro - Não)  "));
-                if(opcao == 1){
+                if (opcao == 1) {
                     int linhas, colunas;
                     linhas = metodos.getMatrizResultado().length;
                     colunas = metodos.getMatrizResultado()[0].length;
-                    
-                    int imgResultado [][] = new int[linhas][colunas];
+
+                    int imgResultado[][] = new int[linhas][colunas];
                     imgResultado = metodos.getMatrizResultado();
                     metodos.matrizResultadoNovaMatriz();
-                    
+
                     nLinhas = metodos.getnLinhas();
                     nColunas = metodos.getnColunas();
-                    
+
                     exibirImagemCinza(metodos.getMatriz());
                 }
             }
-            if(resultado == "Escurecer Imagem"){
+            if (resultado == "Escurecer Imagem") {
                 int valor = Integer.parseInt(JOptionPane.showInputDialog(this, "Entre com o valor para escurecer"));
                 //verificar se valor é menor que limite
-                if(valor > metodos.getLimite()){
+                if (valor > metodos.getLimite()) {
                     JOptionPane.showMessageDialog(this, "O valor deve ser entre 0 e " + metodos.getLimite());
-                }else{
+                } else {
                     metodos.escurecerMatriz(valor);
-                    
+
                     nLinhasNova = metodos.getMatrizResultado().length;
                     nColunasNova = metodos.getMatrizResultado()[0].length;
                     exibirImagemCinzaResultado(metodos.getMatrizResultado());
                 }
-            }else if(resultado == "Clarear Imagem"){
+            } else if (resultado == "Clarear Imagem") {
                 int valor = Integer.parseInt(JOptionPane.showInputDialog(this, "Entre com o valor para clarear"));
-                
-                if(valor > metodos.getLimite()){
+
+                if (valor > metodos.getLimite()) {
                     JOptionPane.showMessageDialog(this, "O valor deve ser entre 0 e " + metodos.getLimite());
-                }else{
+                } else {
                     metodos.clarearMatriz(valor);
-                    
+
                     nLinhasNova = metodos.getMatrizResultado().length;
                     nColunasNova = metodos.getMatrizResultado()[0].length;
                     exibirImagemCinzaResultado(metodos.getMatrizResultado());
                 }
-                
-            }else if(resultado == "Girar Imagem"){
+
+            } else if (resultado == "Girar Imagem") {
                 int numero = Integer.parseInt(JOptionPane.showInputDialog(this, "Entre com o valor para girar: "));
-                
-                while((numero != 90) || (numero != -90) || (numero != 180)){
+
+                while ((numero != 90) || (numero != -90) || (numero != 180)) {
                     JOptionPane.showMessageDialog(this, "Valor deve ser: 90, -90 ou 180");
                     numero = Integer.parseInt(JOptionPane.showInputDialog(this, "Entre com o valor para girar: "));
-                    if( (numero == 90) || (numero == -90) || (numero == 180)) break;
+                    if ((numero == 90) || (numero == -90) || (numero == 180)) {
+                        break;
+                    }
                 }
-                
+
                 metodos.girarMatriz(numero);
-                
+
                 nLinhasNova = metodos.getMatrizResultado().length;
                 nColunasNova = metodos.getMatrizResultado()[0].length;
                 exibirImagemCinzaResultado(metodos.getMatrizResultado());
-            }else if(resultado == "Tornar Negativo"){
+            } else if (resultado == "Tornar Negativo") {
                 metodos.negativoMatriz();
-                
+
                 nLinhasNova = metodos.getMatrizResultado().length;
                 nColunasNova = metodos.getMatrizResultado()[0].length;
                 exibirImagemCinzaResultado(metodos.getMatrizResultado());
-            }
-            else if(resultado == "Fatiamento"){
+            } else if (resultado == "Fatiamento") {
                 int a, b, novaTonalidadeIntervalo;
                 boolean aux = true;
                 a = b = novaTonalidadeIntervalo = 0;
-                while(aux){
+                while (aux) {
                     a = Integer.parseInt(JOptionPane.showInputDialog(this, "Entre com o valor de 'a': "));
-                    if((a > metodos.getLimite()) || (a < 0)){
+                    if ((a >= metodos.getLimite()) || (a <= 0)) {
                         a = Integer.parseInt(JOptionPane.showInputDialog(this, "Valor deve ser entre 0 e " + metodos.getLimite()));
+                    } else {
+                        aux = false;
                     }
-                    else aux = false;
                 }
-                
+
                 aux = true;
-                while(aux){
+                while (aux) {
                     b = Integer.parseInt(JOptionPane.showInputDialog(this, "Entre com o valor de 'b': "));
-                    if((b > metodos.getLimite())||(b < 0)){
+                    if ((b >= metodos.getLimite()) || (b <= 0)) {
                         b = Integer.parseInt(JOptionPane.showInputDialog(this, "Valor deve ser entre 0 e " + metodos.getLimite()));
+                    } else {
+                        aux = false;
                     }
-                    else aux = false;
                 }
-                
+
                 aux = true;
-                while(aux){
+                while (aux) {
                     novaTonalidadeIntervalo = Integer.parseInt(JOptionPane.showInputDialog(this, "Valor da nova tonalidade: "));
-                    if((novaTonalidadeIntervalo > metodos.getLimite())||(novaTonalidadeIntervalo < 0)){
-                        novaTonalidadeIntervalo = Integer.parseInt(JOptionPane.showInputDialog(this, 
+                    if ((novaTonalidadeIntervalo >= metodos.getLimite()) || (novaTonalidadeIntervalo <= 0)) {
+                        novaTonalidadeIntervalo = Integer.parseInt(JOptionPane.showInputDialog(this,
                                 "Valor deve ser entre 0 e " + metodos.getLimite()));
+                    } else {
+                        aux = false;
                     }
-                    else aux = false;
                 }
-                
+
                 metodos.fatiamentoImagem(a, b, novaTonalidadeIntervalo);
                 nLinhasNova = metodos.getMatrizResultado().length;
                 nColunasNova = metodos.getMatrizResultado()[0].length;
                 exibirImagemCinzaResultado(metodos.getMatrizResultado());
-            }
-            else if(resultado == "Transf. Gama"){
+            } else if (resultado == "Transf. Gama") {
                 float c, gama;
                 c = Float.valueOf(JOptionPane.showInputDialog(this, "Valor de c: "));
                 gama = Float.valueOf(JOptionPane.showInputDialog(this, "Valor de gama: "));
-                
+
                 metodos.transfGama(c, gama);
                 nLinhasNova = metodos.getMatrizResultado().length;
                 nColunasNova = metodos.getMatrizResultado()[0].length;
                 exibirImagemCinzaResultado(metodos.getMatrizResultado());
-            }
-            else if(resultado == "Flip Horizontal"){
+            } else if (resultado == "Flip Horizontal") {
                 metodos.flipHorizontal();
                 nLinhasNova = metodos.getMatrizResultado().length;
                 nColunasNova = metodos.getMatrizResultado()[0].length;
                 exibirImagemCinzaResultado(metodos.getMatrizResultado());
-            }
-            else if(resultado == "Equalização de Histograma"){
+            } else if (resultado == "Equalização de Histograma") {
                 metodos.histograma();
                 nLinhasNova = metodos.getMatrizResultado().length;
                 nColunasNova = metodos.getMatrizResultado()[0].length;
                 exibirImagemCinzaResultado(metodos.getMatrizResultado());
-            }
-            else if(resultado == "Laplaciano (4 ao centro)"){
+            } else if (resultado == "Laplaciano (4 ao centro)") {
                 metodos.laplaciano1();
                 nLinhasNova = metodos.getMatrizResultado().length;
                 nColunasNova = metodos.getMatrizResultado()[0].length;
                 exibirImagemCinzaResultado(metodos.getMatrizResultado());
                 int opcao = Integer.parseInt(JOptionPane.showInputDialog(this, "Deseja somar com a imagem original? (1- SIM)"));
-                if(opcao == 1){
+                if (opcao == 1) {
                     JFileChooser salvandoArquivo = new JFileChooser();
                     int opt = salvandoArquivo.showSaveDialog(this);
-                    if (opt != JFileChooser.APPROVE_OPTION) return;
+                    if (opt != JFileChooser.APPROVE_OPTION) {
+                        return;
+                    }
                     File salvarArquivoEscolhido = salvandoArquivo.getSelectedFile();
-                    File salvarArquivo = new File(salvarArquivoEscolhido.getPath()+".pgm");
-                    
+                    File salvarArquivo = new File(salvarArquivoEscolhido.getPath() + ".pgm");
+
                     try {
                         metodos.somarMatrizes(salvarArquivo.getPath());
                     } catch (IOException ex) {
@@ -397,20 +409,21 @@ public class IUPrincipal extends javax.swing.JFrame {
                     }
 
                 }
-            }
-            else if(resultado == "Laplaciano (8 ao centro)"){
+            } else if (resultado == "Laplaciano (8 ao centro)") {
                 metodos.laplaciano2();
                 nLinhasNova = metodos.getMatrizResultado().length;
                 nColunasNova = metodos.getMatrizResultado()[0].length;
                 exibirImagemCinzaResultado(metodos.getMatrizResultado());
                 int opcao = Integer.parseInt(JOptionPane.showInputDialog(this, "Deseja somar com a imagem original? (1- SIM)"));
-                if(opcao == 1){
+                if (opcao == 1) {
                     JFileChooser salvandoArquivo = new JFileChooser();
                     int opt = salvandoArquivo.showSaveDialog(this);
-                    if (opt != JFileChooser.APPROVE_OPTION) return;
+                    if (opt != JFileChooser.APPROVE_OPTION) {
+                        return;
+                    }
                     File salvarArquivoEscolhido = salvandoArquivo.getSelectedFile();
-                    File salvarArquivo = new File(salvarArquivoEscolhido.getPath()+".pgm");
-                    
+                    File salvarArquivo = new File(salvarArquivoEscolhido.getPath() + ".pgm");
+
                     try {
                         metodos.somarMatrizes(salvarArquivo.getPath());
                     } catch (IOException ex) {
@@ -418,57 +431,60 @@ public class IUPrincipal extends javax.swing.JFrame {
                     }
 
                 }
-            }
-            else if(resultado == "Media"){
+            } else if (resultado == "Media") {
                 int filtro = Integer.parseInt(JOptionPane.showInputDialog(this, "Insira a dimensão da Janela: "));
                 metodos.media(filtro);
                 nLinhasNova = metodos.getMatrizResultado().length;
                 nColunasNova = metodos.getMatrizResultado()[0].length;
                 exibirImagemCinzaResultado(metodos.getMatrizResultado());
-            }
-            else if(resultado == "Binarização"){
+            } else if (resultado == "Mediana") {
+                int filtro = Integer.parseInt(JOptionPane.showInputDialog(this, "Insira a dimensão da Janela: "));
+                metodos.mediana(filtro);
+                nLinhasNova = metodos.getMatrizResultado().length;
+                nColunasNova = metodos.getMatrizResultado()[0].length;
+                exibirImagemCinzaResultado(metodos.getMatrizResultado());
+            } else if (resultado == "Binarização") {
                 int valor = Integer.parseInt(JOptionPane.showInputDialog(this, "Insira um valor para a binarização: "));
                 metodos.binarizacao(valor);
                 nLinhasNova = metodos.getMatrizResultado().length;
                 nColunasNova = metodos.getMatrizResultado()[0].length;
                 exibirImagemCinzaResultado(metodos.getMatrizResultado());
-            }
-//------------------------------------------Métodos Coloridos----------------------------------------------------------------------------------------------
+            } //------------------------------------------Métodos Coloridos----------------------------------------------------------------------------------------------
             //Métodos Coloridos disponíveis:
             //Separar RGB
             //Separar CMY
             //Separar HSI
             //Cinza - RGB
-            else if(resultado == "Separar RGB"){
-                if(metodos2.getnLinhas() > 1){
+            else if (resultado == "Separar RGB") {
+                if (metodos2.getnLinhas() > 1) {
                     metodos2.separarRGB();
-                    int matrizR[][] = new int [metodos2.getnLinhas()][metodos2.getnColunas()];
+                    int matrizR[][] = new int[metodos2.getnLinhas()][metodos2.getnColunas()];
                     matrizR = metodos2.getMatrizR();
-                    int matrizG[][] = new int [metodos2.getnLinhas()][metodos2.getnColunas()];
+                    int matrizG[][] = new int[metodos2.getnLinhas()][metodos2.getnColunas()];
                     matrizG = metodos2.getMatrizG();
-                    int matrizB[][] = new int [metodos2.getnLinhas()][metodos2.getnColunas()];
+                    int matrizB[][] = new int[metodos2.getnLinhas()][metodos2.getnColunas()];
                     matrizB = metodos2.getMatrizB();
-                   
+
                     salvarArquivo(matrizR, "Arquivo Vermelho - R");
                     salvarArquivo(matrizG, "Arquivo Verde - G");
                     salvarArquivo(matrizB, "Arquivo Azul - B");
-                    
-                }else JOptionPane.showMessageDialog(this, "Abra um arquivo antes");
-            }
-            else if(resultado == "Separar CMY"){
+
+                } else {
+                    JOptionPane.showMessageDialog(this, "Abra um arquivo antes");
+                }
+            } else if (resultado == "Separar CMY") {
                 metodos2.separaCMY();
-                int matrizC[][] = new int [metodos2.getnLinhas()][metodos2.getnColunas()];
+                int matrizC[][] = new int[metodos2.getnLinhas()][metodos2.getnColunas()];
                 matrizC = metodos2.getMatrizC();
-                int matrizM[][] = new int [metodos2.getnLinhas()][metodos2.getnColunas()];
+                int matrizM[][] = new int[metodos2.getnLinhas()][metodos2.getnColunas()];
                 matrizM = metodos2.getMatrizM();
-                int matrizY[][] = new int [metodos2.getnLinhas()][metodos2.getnColunas()];
+                int matrizY[][] = new int[metodos2.getnLinhas()][metodos2.getnColunas()];
                 matrizY = metodos2.getMatrizY();
-                   
+
                 salvarArquivo(matrizC, "Arquivo Ciano - C");
                 salvarArquivo(matrizM, "Arquivo Magento - M");
                 salvarArquivo(matrizY, "Arquivo Amarelo - Y");
-            }
-            else if(resultado == "Separar HSI"){
+            } else if (resultado == "Separar HSI") {
                 metodos2.seprarHSI();
                 int matrizH[][] = new int[metodos2.getnLinhas()][metodos2.getnColunas()];
                 matrizH = metodos2.getMatrizH();
@@ -476,18 +492,17 @@ public class IUPrincipal extends javax.swing.JFrame {
                 matrizS = metodos2.getMatrizS();
                 int matrizI[][] = new int[metodos2.getnLinhas()][metodos2.getnColunas()];
                 matrizI = metodos2.getMatrizI();
-                
+
                 salvarArquivo(matrizH, "Arquivo Hue - H");
                 salvarArquivo(matrizS, "Arquivo Saturação - S");
                 salvarArquivo(matrizI, "Arquivo Intensidade - I");
-            }
-            else if(resultado == "Cinza - RGB"){
+            } else if (resultado == "Cinza - RGB") {
                 int returnValR = fileChooserR.showOpenDialog(this);
                 int returnValG = fileChooserG.showOpenDialog(this);
                 int returnValB = fileChooserB.showOpenDialog(this);
-        
-                if ((returnValR == JFileChooser.APPROVE_OPTION) && (returnValG == JFileChooser.APPROVE_OPTION) && (returnValB == JFileChooser.APPROVE_OPTION) ){
-                
+
+                if ((returnValR == JFileChooser.APPROVE_OPTION) && (returnValG == JFileChooser.APPROVE_OPTION) && (returnValB == JFileChooser.APPROVE_OPTION)) {
+
                     File fileVermelho = fileChooserR.getSelectedFile();
                     File fileVerde = fileChooserG.getSelectedFile();
                     File fileAzul = fileChooserB.getSelectedFile();
@@ -529,8 +544,8 @@ public class IUPrincipal extends javax.swing.JFrame {
 
                         Rgb[][] matriz = new Rgb[nLinhas][nColunas];
 
-                        for(int i = 0; i < nLinhas; i++){
-                            for(int j = 0; j < nColunas; j++){
+                        for (int i = 0; i < nLinhas; i++) {
+                            for (int j = 0; j < nColunas; j++) {
                                 Rgb novo = new Rgb();
                                 linhaR = buffReadR.readLine();
                                 linhaG = buffReadG.readLine();
@@ -544,8 +559,8 @@ public class IUPrincipal extends javax.swing.JFrame {
                             }
                         }
 
-                        for(int i = 0; i < nLinhas; i++){
-                            for(int j = 0; j < nColunas; j++){
+                        for (int i = 0; i < nLinhas; i++) {
+                            for (int j = 0; j < nColunas; j++) {
                                 System.out.println("Linha: " + i + " Coluna: " + j);
                                 System.out.println("R: " + matriz[i][j].getR());
                                 System.out.println("G: " + matriz[i][j].getG());
@@ -561,10 +576,10 @@ public class IUPrincipal extends javax.swing.JFrame {
                 }
             }
             salvarArquivo.setEnabled(true);
-        }else{
+        } else {
             JOptionPane.showMessageDialog(this, "Abra um arquivo antes");
         }
-        
+
     }//GEN-LAST:event_confirmarButtonActionPerformed
 
     private void metodoSelecionadoCinzaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_metodoSelecionadoCinzaActionPerformed
@@ -574,9 +589,11 @@ public class IUPrincipal extends javax.swing.JFrame {
     private void salvarArquivoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_salvarArquivoActionPerformed
         JFileChooser salvandoArquivo = new JFileChooser();
         int opt = salvandoArquivo.showSaveDialog(this);
-        if (opt != JFileChooser.APPROVE_OPTION) return;
+        if (opt != JFileChooser.APPROVE_OPTION) {
+            return;
+        }
         File salvarArquivoEscolhido = salvandoArquivo.getSelectedFile();
-        File salvarArquivo = new File(salvarArquivoEscolhido.getPath()+".pgm");
+        File salvarArquivo = new File(salvarArquivoEscolhido.getPath() + ".pgm");
         try {
             metodos.escreverMatriz(salvarArquivo.getPath());
         } catch (IOException ex) {
@@ -584,72 +601,437 @@ public class IUPrincipal extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_salvarArquivoActionPerformed
 
-    private void exibirImagemCinza(int matriz[][]){ 
+    private void leituraArquivoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_leituraArquivoActionPerformed
+        JFileChooser jFile = new JFileChooser();
+        int returnVal = jFile.showOpenDialog(this);
+        //abrir o arquivo
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            File file = jFile.getSelectedFile();
+            String a[] = file.getAbsolutePath().split("\\.");
+
+            //Se o arquivo é txt
+            if ("txt".equals(a[a.length - 1])) {
+                try {
+                    String data = new String(Files.readAllBytes(file.toPath())); //Armazena os elementos do arquivo
+                    String linhas[] = data.split("\r\n"); //Separa as linhas do arquivo
+
+                    for (String linha1 : linhas) {
+                        String[] linha = linha1.split(" "); //Recebe cada linha
+                        
+                        if (null != linha[0]) {
+                            switch (linha[0].toLowerCase()) {
+                                case "leitura":
+                                    //Comando para leitura de um arquivo
+                                    System.out.println("Ler imagem >> " + linha[1]);
+                                    abrirImagem(linha[1]);
+                                    break;
+                                case "escrever":
+                                    //Comando para escrita de um arquivo
+                                    if (nLinhas > 0) {
+                                        System.out.println("Escrever no arquivo >> " + linha[1]);
+                                        salvarArquivo(metodos.getMatrizResultado(), linha[1]);
+                                    } else {
+                                        JOptionPane.showMessageDialog(this, "O arquivo deve abrir uma imagem para poder salvar");
+                                    }
+                                    break;
+                                case "escurecer":
+                                    //Comando para escurecer uma imagem
+                                    System.out.println("Escurecer a imagem ");
+                                    int valor = Integer.parseInt(linha[1]);
+                                    //Se há uma imagem aberta e se é do tipo PGM (cinza)
+                                    if ((nLinhas > 0) && (pgmPPM == false)) {
+                                        if (valor > metodos.getLimite()) {
+                                            JOptionPane.showMessageDialog(this, "O valor para escurecer deve ser entre 0 e 255");
+                                        } else metodos.escurecerMatriz(valor);
+                                    }
+                                    break;
+                                case "clarear":
+                                    //Comando para clarear uma imagem
+                                    System.out.println("Clarear a imagem");
+
+                                    //Se há uma imagem aberta e se é do tipo PGM (cinza)
+                                    if ((nLinhas > 0) && (pgmPPM == false)) {
+                                        valor = Integer.parseInt(linha[1]);
+                                        if (valor > metodos.getLimite()) {
+                                            JOptionPane.showMessageDialog(this, "O valor para clarear deve ser entre 0 e 255");
+                                        } else metodos.clarearMatriz(valor);
+                                    }
+                                    break;
+                                case "girar":
+                                    //Comando para girar uma imagem
+                                    System.out.println("Girar");
+
+                                    //Se há uma imagem aberta e se é do tipo PGM (cinza)
+                                    if ((nLinhas > 0) && (pgmPPM == false)) {
+                                        int numero = Integer.parseInt(linha[1]);
+                                        if ((numero != 90) && (numero != -90) && (numero != 180) && (numero != -180)) {
+                                            JOptionPane.showMessageDialog(this, "Valor deve ser: 90, -90 ou 180");
+                                        } else metodos.girarMatriz(numero);
+                                    }
+                                    break;
+                                case "negativo":
+                                    //Comando para tornar negativo uma imagem
+                                    System.out.println("Negativo");
+
+                                    //Se há uma imagem aberta e se é do tipo PGM (cinza)
+                                    if ((nLinhas > 0) && (pgmPPM == false)) metodos.negativoMatriz();
+                                    break;
+                                case "fatiamento":
+                                    //Comando para fatiamento de uma imagem mantendo os valores de fora do intervalo
+                                    System.out.println("fatiamento");
+
+                                    //Se há uma imagem aberta e se é do tipo PGM (cinza)
+                                    if ((nLinhas > 0) && (pgmPPM == false)) {
+                                        int valorA = Integer.parseInt(linha[1]);
+                                        int valorB = Integer.parseInt(linha[2]);
+                                        int novaTonalidade = Integer.parseInt(linha[3]);
+
+                                        if ((valorA >= 0) && (valorA <= 255)) {
+                                            if ((valorB >= 0) && (valorB <= 255)) {
+                                                if ((novaTonalidade >= 0) && (novaTonalidade <= 255)) {
+                                                    metodos.fatiamentoImagem(valorA, valorB, novaTonalidade);
+                                                    nLinhasNova = metodos.getMatrizResultado().length;
+                                                    nColunasNova = metodos.getMatrizResultado()[0].length;
+                                                } else {
+                                                    JOptionPane.showMessageDialog(this, "O intervalo deve estar entre 0 e 255");
+                                                }
+                                            } else {
+                                                JOptionPane.showMessageDialog(this, "O valor de B deve ser entre 0 e 255");
+                                            }
+                                        } else {
+                                            JOptionPane.showMessageDialog(this, "O valor de A deve ser entre 0 e 255");
+                                        }
+                                    }
+                                    break;
+                                case "fatiamento2":
+                                    //Comando para fatiamento de uma imagem trocando os valores de fora do intervalo
+                                    System.out.println("fatiamento");
+
+                                    //Se há uma imagem aberta e se é do tipo PGM (cinza)
+                                    if ((nLinhas > 0) && (pgmPPM == false)) {
+                                        int valorA = Integer.parseInt(linha[1]);
+                                        int valorB = Integer.parseInt(linha[2]);
+                                        int novaTonalidadeIntervalo = Integer.parseInt(linha[3]);
+                                        int novaTonalidadeFora = Integer.parseInt(linha[4]);
+
+                                        if ((valorA >= 0) && (valorA <= 255)) {
+                                            if ((valorB >= 0) && (valorB <= 255)) {
+                                                if ((novaTonalidadeIntervalo >= 0) && (novaTonalidadeIntervalo <= 255)) {
+                                                    if ((novaTonalidadeFora >= 0) && (novaTonalidadeFora <= 255)) {
+                                                        metodos.fatiamento2Imagem(valorA, valorB, novaTonalidadeIntervalo, novaTonalidadeFora);
+                                                        nLinhasNova = metodos.getMatrizResultado().length;
+                                                        nColunasNova = metodos.getMatrizResultado()[0].length;
+                                                    } else {
+                                                        JOptionPane.showMessageDialog(this, "O novo valor deve estar entre 0 e 255");
+                                                    }
+                                                } else {
+                                                    JOptionPane.showMessageDialog(this, "O novo valor deve estar entre 0 e 255");
+                                                }
+                                            } else {
+                                                JOptionPane.showMessageDialog(this, "O valor de B deve ser entre 0 e 255");
+                                            }
+                                        } else {
+                                            JOptionPane.showMessageDialog(this, "O valor de A deve ser entre 0 e 255");
+                                        }
+                                    }
+                                    break;
+                                case "gama":
+                                    //Comando para transformação gama de uma imagem
+                                    System.out.println("Transformação Gama");
+
+                                    //Se há uma imagem aberta e se é do tipo PGM (cinza)
+                                    if ((nLinhas > 0) && (pgmPPM == false)) {
+                                        float c = Float.parseFloat(linha[1]);
+                                        float gama = Float.parseFloat(linha[2]);
+                                        metodos.transfGama(c, gama);
+                                    }
+                                    break;
+                                case "flip":
+                                    //Comando para flip horizontal de uma imagem
+                                    System.out.println("Flip Horizontal");
+
+                                    //Se há uma imagem aberta e se é do tipo PGM (cinza)
+                                    if ((nLinhas > 0) && (pgmPPM == false)) {
+                                        metodos.flipHorizontal();
+                                        nLinhasNova = metodos.getMatrizResultado().length;
+                                        nColunasNova = metodos.getMatrizResultado()[0].length;
+                                    }
+                                    break;
+                                case "histograma":
+                                    //Comando para equalização do histograma de uma imagem
+                                    System.out.println("Equalização do histograma");
+
+                                    //Se há uma imagem aberta e se é do tipo PGM (cinza)
+                                    if ((nLinhas > 0) && (pgmPPM == false)) {
+                                        metodos.histograma();
+                                        nLinhasNova = metodos.getMatrizResultado().length;
+                                        nColunasNova = metodos.getMatrizResultado()[0].length;
+                                    }
+                                    break;
+                                case "laplaciano":
+                                    //Comando para aplicação do filtro laplaciano uma imagem
+
+                                    //Se há uma imagem aberta e se é do tipo PGM (cinza)
+                                    if ((nLinhas > 0) && (pgmPPM == false)) {
+                                        if ("4".equals(linha[1])) {
+                                            System.out.println("Laplaciano com 4 no elemento central");
+                                            metodos.laplaciano1();
+                                            nLinhasNova = metodos.getMatrizResultado().length;
+                                            nColunasNova = metodos.getMatrizResultado()[0].length;
+                                        } else if ("8".equals(linha[1])) {
+                                            System.out.println("Laplaciano com 8 no meio");
+                                            metodos.laplaciano2();
+                                            nLinhasNova = metodos.getMatrizResultado().length;
+                                            nColunasNova = metodos.getMatrizResultado()[0].length;
+                                        }
+                                    }
+                                    break;
+                                case "media":
+                                    //Comando para realização da média de uma imagem
+                                    System.out.println("Média");
+
+                                    //Se há uma imagem aberta e se é do tipo PGM (cinza)
+                                    if ((nLinhas > 0) && (pgmPPM == false)) {
+                                        int filtro = Integer.parseInt(linha[1]);
+                                        metodos.media(filtro);
+                                        nLinhasNova = metodos.getMatrizResultado().length;
+                                        nColunasNova = metodos.getMatrizResultado()[0].length;
+                                    }
+                                    break;
+                                case "binarizacao":
+                                    //Comando para binarização de uma imagem
+                                    System.out.println("binarização");
+
+                                    //Se há uma imagem aberta e se é do tipo PGM (cinza)
+                                    if ((nLinhas > 0) && (pgmPPM == false)) {
+                                        valor = Integer.parseInt(linha[1]);
+                                        metodos.binarizacao(valor);
+                                        nLinhasNova = metodos.getMatrizResultado().length;
+                                        nColunasNova = metodos.getMatrizResultado()[0].length;
+                                    }
+                                    break;
+                                case "soma":
+                                    //Comando para soma entre a imagem original e a resultado
+                                    System.out.println("Somar imagem original e resultado");
+
+                                    //Se há uma imagem aberta e se é do tipo PGM (cinza)
+                                    if ((nLinhas > 0) && (pgmPPM == false)) {
+                                        metodos.somarImagens();
+                                        nLinhasNova = metodos.getMatrizResultado().length;
+                                        nColunasNova = metodos.getMatrizResultado()[0].length;
+                                    }
+                                    break;
+                                case "multiplicacao":
+                                    //Multiplicar um valor a imagem
+                                    System.out.println("Multiplicação");
+
+                                    //Se há uma imagem aberta e se é do tipo PGM (cinza)
+                                    if ((nLinhas > 0) && (pgmPPM == false)) {
+                                        valor = Integer.parseInt(linha[1]);
+                                        metodos.multiplicarValor(valor);
+                                        nLinhasNova = metodos.getMatrizResultado().length;
+                                        nColunasNova = metodos.getMatrizResultado()[0].length;
+                                    }
+                                    break;
+                                case "subtracao":
+                                    //Comando para subtração da imagem original e resultado
+                                    System.out.println("Subtrair imagem original e resultado");
+
+                                    //Se há uma imagem aberta e se é do tipo PGM (cinza)
+                                    if ((nLinhas > 0) && (pgmPPM == false)) {
+                                        metodos.subtrairImagens();
+                                        nLinhasNova = metodos.getMatrizResultado().length;
+                                        nColunasNova = metodos.getMatrizResultado()[0].length;
+                                    }
+                                    break;
+                                case "mediana":
+                                    //Comando para aplicação de mediana
+                                    System.out.println("Mediana");
+
+                                    //Se há uma imagem aberta e se é do tipo PGM (cinza)
+                                    if ((nLinhas > 0) && (pgmPPM == false)) {
+                                        int filtro = Integer.parseInt(linha[1]);
+                                        metodos.mediana(filtro);
+                                        nLinhasNova = metodos.getMatrizResultado().length;
+                                        nColunasNova = metodos.getMatrizResultado()[0].length;
+                                    }
+                                    break;
+                                case "extrairRGB":
+                                    //Comando para extrair os canais RGB
+                                    System.out.println("Extrair canais RGB");
+
+                                    //Se há uma imagem aberta e se é do tipo PPM (cinza)
+                                    if ((nLinhas > 0) && (pgmPPM)) {
+                                        metodos2.separarRGB();
+                                        int matrizR[][] = new int[metodos2.getnLinhas()][metodos2.getnColunas()];
+                                        matrizR = metodos2.getMatrizR();
+                                        int matrizG[][] = new int[metodos2.getnLinhas()][metodos2.getnColunas()];
+                                        matrizG = metodos2.getMatrizG();
+                                        int matrizB[][] = new int[metodos2.getnLinhas()][metodos2.getnColunas()];
+                                        matrizB = metodos2.getMatrizB();
+
+                                        salvarArquivoCaminho(linha[2], linha[1], matrizR);
+                                        salvarArquivoCaminho(linha[3], linha[1], matrizG);
+                                        salvarArquivoCaminho(linha[4], linha[1], matrizB);
+                                    }
+                                    break;
+                                case "extrairCMY":
+                                    //Comando para extrair os canais CMY
+                                    System.out.println("Extrair CMY");
+
+                                    //Se há uma imagem aberta e se é do tipo PPM (cinza)
+                                    if ((nLinhas > 0) && (pgmPPM)) {
+                                        metodos2.separaCMY();
+                                        int matrizC[][] = new int[metodos2.getnLinhas()][metodos2.getnColunas()];
+                                        matrizC = metodos2.getMatrizC();
+                                        int matrizM[][] = new int[metodos2.getnLinhas()][metodos2.getnColunas()];
+                                        matrizM = metodos2.getMatrizM();
+                                        int matrizY[][] = new int[metodos2.getnLinhas()][metodos2.getnColunas()];
+                                        matrizY = metodos2.getMatrizY();
+
+                                        salvarArquivoCaminho(linha[2], linha[1], matrizC);
+                                        salvarArquivoCaminho(linha[3], linha[1], matrizM);
+                                        salvarArquivoCaminho(linha[4], linha[1], matrizY);
+                                    }
+                                    break;
+                                case "comporRGB":
+                                    String linhaR = "";
+                                    String linhaG = "";
+                                    String linhaB = "";
+
+                                    //Tipo do arquivo (P1 == ASC PBM) (P2 == ASC PGM) (P3 == ASC PPM) (P4 == BIN PBM) (P5 == BIN PGM) (P6 == BIN PPM)
+                                    BufferedReader buffReadR = null;
+                                    BufferedReader buffReadG = null;
+                                    BufferedReader buffReadB = null;
+
+                                    buffReadR = new BufferedReader(new FileReader(linha[1]));
+                                    linhaR = buffReadR.readLine(); //Tipo
+
+                                    buffReadG = new BufferedReader(new FileReader(linha[2]));
+                                    linhaG = buffReadG.readLine();
+
+                                    buffReadB = new BufferedReader(new FileReader(linha[3]));
+                                    linhaB = buffReadB.readLine();
+
+                                    linhaR = buffReadR.readLine(); //Dimensão
+                                    linhaG = buffReadG.readLine();
+                                    linhaB = buffReadB.readLine();
+
+                                    nLinhas = Integer.parseInt(linhaR.split(" ")[0]);
+                                    nColunas = Integer.parseInt(linhaR.split(" ")[1]);
+
+                                    linhaR = buffReadR.readLine(); //Limite
+                                    linhaG = buffReadG.readLine();
+                                    linhaB = buffReadB.readLine();
+
+                                    int limite = Integer.parseInt(linhaR);
+
+                                    Rgb[][] matriz = new Rgb[nLinhas][nColunas];
+
+                                    for (int i = 0; i < nLinhas; i++) {
+                                        for (int j = 0; j < nColunas; j++) {
+                                            Rgb novo = new Rgb();
+                                            linhaR = buffReadR.readLine();
+                                            linhaG = buffReadG.readLine();
+                                            linhaB = buffReadB.readLine();
+
+                                            novo.setR(Integer.parseInt(linhaR));
+                                            novo.setG(Integer.parseInt(linhaG));
+                                            novo.setB(Integer.parseInt(linhaB));
+
+                                            matriz[i][j] = novo;
+                                        }
+                                    }
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                        //metodos.matrizOriginalRecebeMatrizResultado();
+                    }
+                    nLinhasNova = metodos.getMatrizResultado().length;
+                    nColunasNova = metodos.getMatrizResultado()[0].length;
+                    exibirImagemCinzaResultado(metodos.getMatrizResultado());
+                } catch (IOException ex) {
+                    Logger.getLogger(IUPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+                    JOptionPane.showMessageDialog(this, "Erro na leitura do arquivo " + ex);
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "Abra uma arquivo do tipo 'txt' ");
+            }
+        }
+    }//GEN-LAST:event_leituraArquivoActionPerformed
+
+    private void exibirImagemCinza(int matriz[][]) {
         imagem_pgm = new BufferedImage(nColunas, nLinhas, BufferedImage.TYPE_BYTE_GRAY);
         WritableRaster raster = imagem_pgm.getRaster();
         int num;
-        for(int i = 0; i < nLinhas; i++)
-            for(int j = 0; j < nColunas; j++){
+        for (int i = 0; i < nLinhas; i++) {
+            for (int j = 0; j < nColunas; j++) {
                 num = matriz[i][j];
                 raster.setSample(j, i, 0, num);
+            }
         }
-        jScrollPane1.setSize(imagem_pgm.getWidth(), imagem_pgm.getHeight());           
-        setSize(imagem_pgm.getWidth(), imagem_pgm.getHeight());        
+        jScrollPane1.setSize(imagem_pgm.getWidth(), imagem_pgm.getHeight());
+        setSize(imagem_pgm.getWidth(), imagem_pgm.getHeight());
         jLabel_imagem.setIcon(new ImageIcon(imagem_pgm));
     }
-    
-    private void exibirImagemCinzaResultado(int matriz[][]){ 
+
+    private void exibirImagemCinzaResultado(int matriz[][]) {
         imagem_pgm = new BufferedImage(nColunasNova, nLinhasNova, BufferedImage.TYPE_BYTE_GRAY);
         WritableRaster raster = imagem_pgm.getRaster();
         int num;
 
-        for(int i = 0; i < nLinhasNova; i++)
-            for(int j = 0; j < nColunasNova; j++){
+        for (int i = 0; i < nLinhasNova; i++) {
+            for (int j = 0; j < nColunasNova; j++) {
                 num = matriz[i][j];
                 raster.setSample(j, i, 0, num);
+            }
         }
-        jScrollPane2.setSize(imagem_pgm.getWidth(), imagem_pgm.getHeight());           
-        setSize(imagem_pgm.getWidth(), imagem_pgm.getHeight());        
+        jScrollPane2.setSize(imagem_pgm.getWidth(), imagem_pgm.getHeight());
+        setSize(imagem_pgm.getWidth(), imagem_pgm.getHeight());
         jLabel_imagemResultado.setIcon(new ImageIcon(imagem_pgm));
     }
-    
-    public void exibirImagemColorida(Rgb matriz[][]){
+
+    public void exibirImagemColorida(Rgb matriz[][]) {
         imagem_ppm = new BufferedImage(nColunas, nLinhas, BufferedImage.TYPE_INT_RGB);
         int r, g, b, rgb;
-        
-        for(int i = 0; i < nColunas; i++){
-            for(int j = 0; j < nLinhas; j++){
+
+        for (int i = 0; i < nColunas; i++) {
+            for (int j = 0; j < nLinhas; j++) {
                 r = matriz[i][j].getR();
                 g = matriz[i][j].getG();
                 b = matriz[i][j].getB();
-                
-                Color myColor = new Color(r,g,b);
+
+                Color myColor = new Color(r, g, b);
                 rgb = myColor.getRGB();
-                
+
                 imagem_ppm.setRGB(j, i, rgb);
             }
         }
-        
+
         jScrollPane1.setSize(imagem_ppm.getWidth(), imagem_ppm.getHeight());
         setSize(imagem_ppm.getWidth(), imagem_ppm.getHeight());
         jLabel_imagem.setIcon(new ImageIcon(imagem_ppm));
     }
-    
-    public void salvarArquivo(int matriz[][], String texto){
+
+    public void salvarArquivo(int matriz[][], String texto) {
         JFileChooser salvandoArquivo = new JFileChooser();
         salvandoArquivo.setDialogTitle(texto);
         int opt = salvandoArquivo.showSaveDialog(this);
-        if (opt != JFileChooser.APPROVE_OPTION) return;
+        if (opt != JFileChooser.APPROVE_OPTION) {
+            return;
+        }
         File salvarArquivoEscolhido = salvandoArquivo.getSelectedFile();
-        File salvarArquivo = new File(salvarArquivoEscolhido.getPath()+".pgm");
+        File salvarArquivo = new File(salvarArquivoEscolhido.getPath() + ".pgm");
         try {
             OutputStream salvar = new FileOutputStream(salvarArquivo.getPath());
-            String linha = "P2\n"+ matriz.length +" "+ matriz[0].length +"\n" + 255 +"\n";
-            byte [] salvando = linha.getBytes();
+            String linha = "P2\n" + matriz.length + " " + matriz[0].length + "\n" + 255 + "\n";
+            byte[] salvando = linha.getBytes();
             salvar.write(salvando);
 
-            for(int i = 0; i < nLinhas; i++){
-                for(int j = 0; j < nColunas; j++){
+            for (int i = 0; i < nLinhas; i++) {
+                for (int j = 0; j < nColunas; j++) {
                     salvando = String.valueOf(matriz[i][j]).getBytes();
                     salvar.write(salvando);
                     salvando = "\n".getBytes();
@@ -662,6 +1044,56 @@ public class IUPrincipal extends javax.swing.JFrame {
             Logger.getLogger(IUPrincipal.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+
+    public void salvarArquivoCaminho(String nome, String caminho, int matriz[][]) throws FileNotFoundException, IOException {
+        File salvarArquivo = new File(caminho + "/" + nome + ".pgm");
+        try {
+            OutputStream salvar = new FileOutputStream(salvarArquivo.getPath());
+            String linha = "P2\n" + matriz.length + " " + matriz[0].length + "\n" + 255 + "\n";
+            byte[] salvando = linha.getBytes();
+            salvar.write(salvando);
+
+            for (int i = 0; i < nLinhas; i++) {
+                for (int j = 0; j < nColunas; j++) {
+                    salvando = String.valueOf(matriz[i][j]).getBytes();
+                    salvar.write(salvando);
+                    salvando = "\n".getBytes();
+                    salvar.write(salvando);
+                }
+            }
+            salvar.close();
+        } catch (IOException ex) {
+
+        }
+
+    }
+
+    public void abrirImagem(String caminho) throws IOException {
+        String a[] = caminho.split("\\.");
+        //P2 e P5
+        if ("pgm".equals(a[a.length - 1])) {
+            pgmPPM = false;
+            nColunasNova = nLinhasNova = 0;
+            metodos = new MetodosCinza(caminho);
+            nLinhas = metodos.getnLinhas();
+            nColunas = metodos.getnColunas();
+            
+            exibirImagemCinza(metodos.getMatriz());
+            metodoSelecionadoCinza.setEnabled(false);
+            metodoSelecionadoColorido.setEnabled(false);
+            //menuCinza_.setEnabled(true);
+        } //P3 e P6
+        else if ("ppm".equals(a[a.length - 1])) {
+            pgmPPM = true;
+            nColunasNova = nLinhasNova = 0;
+            metodos2 = new MetodosColorido(caminho);
+            nLinhas = metodos2.getnLinhas();
+            nColunas = metodos2.getnColunas();
+        } else {
+            JOptionPane.showMessageDialog(this, "A imagem deve ser do tipo PGM ou PPM");
+        }
+    }
+
     /**
      * @param args the command line arguments
      */
@@ -710,6 +1142,7 @@ public class IUPrincipal extends javax.swing.JFrame {
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JMenuItem leituraArquivo;
     private javax.swing.JMenu menuCinza_;
     private javax.swing.JMenu menuRGB_;
     private javax.swing.JComboBox<String> metodoSelecionadoCinza;

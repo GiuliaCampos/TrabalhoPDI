@@ -51,6 +51,7 @@ public class MetodosColorido {
             
             //Tipo do arquivo (P1 == ASC PBM) (P2 == ASC PGM) (P3 == ASC PPM) (P4 == BIN PBM) (P5 == BIN PGM) (P6 == BIN PPM)
             linha = buffRead1.readLine();
+            
             setTipo(linha);
             
             //Linha que contém o número de linhas e de colunas da matriz

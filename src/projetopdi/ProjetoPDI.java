@@ -24,7 +24,7 @@ public class ProjetoPDI {
      */
     public static void main(String[] args) throws IOException {
         IUPrincipal principal = new IUPrincipal();
-        //principal.setSize(1500, 1000);
+        principal.setSize(400, 500);
         principal.setVisible(true);
         principal.setTitle("Trabalho de PDI");
         principal.toFront();
