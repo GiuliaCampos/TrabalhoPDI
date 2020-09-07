@@ -629,7 +629,7 @@ public class IUPrincipal extends javax.swing.JFrame {
                                     //Comando para escrita de um arquivo
                                     if (nLinhas > 0) {
                                         System.out.println("Escrever no arquivo >> " + linha[1]);
-                                        salvarArquivo(metodos.getMatrizResultado(), linha[1]);
+                                        salvarArquivoCaminho(linha[1], linha[2], metodos.getMatrizResultado());
                                     } else {
                                         JOptionPane.showMessageDialog(this, "O arquivo deve abrir uma imagem para poder salvar");
                                     }
