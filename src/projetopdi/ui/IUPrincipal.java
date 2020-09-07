@@ -631,7 +631,10 @@ public class IUPrincipal extends javax.swing.JFrame {
                                     if ((nLinhas > 0) && (pgmPPM == false)) {
                                         if (valor > metodos.getLimite()) {
                                             JOptionPane.showMessageDialog(this, "O valor para escurecer deve ser entre 0 e 255");
-                                        } else metodos.escurecerMatriz(valor);
+                                        } else {
+                                            metodos.escurecerMatriz(valor);
+                                            metodos.matrizOriginalRecebeMatrizResultado();
+                                        }
                                     }
                                     break;
                                 case "clarear":
@@ -643,7 +646,10 @@ public class IUPrincipal extends javax.swing.JFrame {
                                         valor = Integer.parseInt(linha[1]);
                                         if (valor > metodos.getLimite()) {
                                             JOptionPane.showMessageDialog(this, "O valor para clarear deve ser entre 0 e 255");
-                                        } else metodos.clarearMatriz(valor);
+                                        } else {
+                                            metodos.clarearMatriz(valor);
+                                            metodos.matrizOriginalRecebeMatrizResultado();
+                                        }
                                     }
                                     break;
                                 case "girar":
@@ -655,7 +661,10 @@ public class IUPrincipal extends javax.swing.JFrame {
                                         int numero = Integer.parseInt(linha[1]);
                                         if ((numero != 90) && (numero != -90) && (numero != 180) && (numero != -180)) {
                                             JOptionPane.showMessageDialog(this, "Valor deve ser: 90, -90 ou 180");
-                                        } else metodos.girarMatriz(numero);
+                                        } else {
+                                            metodos.girarMatriz(numero);
+                                            metodos.matrizOriginalRecebeMatrizResultado();
+                                        }
                                     }
                                     break;
                                 case "negativo":
@@ -681,6 +690,7 @@ public class IUPrincipal extends javax.swing.JFrame {
                                                     metodos.fatiamentoImagem(valorA, valorB, novaTonalidade);
                                                     nLinhasNova = metodos.getMatrizResultado().length;
                                                     nColunasNova = metodos.getMatrizResultado()[0].length;
+                                                    metodos.matrizOriginalRecebeMatrizResultado();
                                                 } else {
                                                     JOptionPane.showMessageDialog(this, "O intervalo deve estar entre 0 e 255");
                                                 }
@@ -710,6 +720,7 @@ public class IUPrincipal extends javax.swing.JFrame {
                                                         metodos.fatiamento2Imagem(valorA, valorB, novaTonalidadeIntervalo, novaTonalidadeFora);
                                                         nLinhasNova = metodos.getMatrizResultado().length;
                                                         nColunasNova = metodos.getMatrizResultado()[0].length;
+                                                        metodos.matrizOriginalRecebeMatrizResultado();
                                                     } else {
                                                         JOptionPane.showMessageDialog(this, "O novo valor deve estar entre 0 e 255");
                                                     }
@@ -733,6 +744,7 @@ public class IUPrincipal extends javax.swing.JFrame {
                                         float c = Float.parseFloat(linha[1]);
                                         float gama = Float.parseFloat(linha[2]);
                                         metodos.transfGama(c, gama);
+                                        metodos.matrizOriginalRecebeMatrizResultado();
                                     }
                                     break;
                                 case "flip":
@@ -744,6 +756,7 @@ public class IUPrincipal extends javax.swing.JFrame {
                                         metodos.flipHorizontal();
                                         nLinhasNova = metodos.getMatrizResultado().length;
                                         nColunasNova = metodos.getMatrizResultado()[0].length;
+                                        metodos.matrizOriginalRecebeMatrizResultado();
                                     }
                                     break;
                                 case "histograma":
@@ -755,6 +768,7 @@ public class IUPrincipal extends javax.swing.JFrame {
                                         metodos.histograma();
                                         nLinhasNova = metodos.getMatrizResultado().length;
                                         nColunasNova = metodos.getMatrizResultado()[0].length;
+                                        metodos.matrizOriginalRecebeMatrizResultado();
                                     }
                                     break;
                                 case "laplaciano":
@@ -767,11 +781,13 @@ public class IUPrincipal extends javax.swing.JFrame {
                                             metodos.laplaciano1();
                                             nLinhasNova = metodos.getMatrizResultado().length;
                                             nColunasNova = metodos.getMatrizResultado()[0].length;
+                                            metodos.matrizOriginalRecebeMatrizResultado();
                                         } else if ("8".equals(linha[1])) {
                                             System.out.println("Laplaciano com 8 no meio");
                                             metodos.laplaciano2();
                                             nLinhasNova = metodos.getMatrizResultado().length;
                                             nColunasNova = metodos.getMatrizResultado()[0].length;
+                                            metodos.matrizOriginalRecebeMatrizResultado();
                                         }
                                     }
                                     break;
@@ -785,6 +801,7 @@ public class IUPrincipal extends javax.swing.JFrame {
                                         metodos.media(filtro);
                                         nLinhasNova = metodos.getMatrizResultado().length;
                                         nColunasNova = metodos.getMatrizResultado()[0].length;
+                                        metodos.matrizOriginalRecebeMatrizResultado();
                                     }
                                     break;
                                 case "binarizacao":
@@ -797,6 +814,7 @@ public class IUPrincipal extends javax.swing.JFrame {
                                         metodos.binarizacao(valor);
                                         nLinhasNova = metodos.getMatrizResultado().length;
                                         nColunasNova = metodos.getMatrizResultado()[0].length;
+                                        metodos.matrizOriginalRecebeMatrizResultado();
                                     }
                                     break;
                                 case "soma":
@@ -820,6 +838,7 @@ public class IUPrincipal extends javax.swing.JFrame {
                                         metodos.multiplicarValor(valor);
                                         nLinhasNova = metodos.getMatrizResultado().length;
                                         nColunasNova = metodos.getMatrizResultado()[0].length;
+                                        metodos.matrizOriginalRecebeMatrizResultado();
                                     }
                                     break;
                                 case "subtracao":
@@ -843,6 +862,7 @@ public class IUPrincipal extends javax.swing.JFrame {
                                         metodos.mediana(filtro);
                                         nLinhasNova = metodos.getMatrizResultado().length;
                                         nColunasNova = metodos.getMatrizResultado()[0].length;
+                                        metodos.matrizOriginalRecebeMatrizResultado();  
                                     }
                                     break;
                                 case "extrairrgb":
@@ -940,9 +960,9 @@ public class IUPrincipal extends javax.swing.JFrame {
                                         }
                                     }
                                     
-                                    nLinhasNova = matrizColorida.length;
-                                    nColunasNova = matrizColorida[0].length;
-                                    exibirImagemColorida(matrizColorida);
+//                                    nLinhasNova = matrizColorida.length;
+//                                    nColunasNova = matrizColorida[0].length;
+//                                    exibirImagemColorida(matrizColorida);
                                     pgmPPM = true;
                                     break;
                                 default:
@@ -951,9 +971,16 @@ public class IUPrincipal extends javax.swing.JFrame {
                         }
                         //metodos.matrizOriginalRecebeMatrizResultado();
                     }
-//                    nLinhasNova = metodos.getMatrizResultado().length;
-//                    nColunasNova = metodos.getMatrizResultado()[0].length;
-//                    exibirImagemCinzaResultado(metodos.getMatrizResultado());
+                    if(!pgmPPM){
+                        nLinhasNova = metodos.getMatrizResultado().length;
+                        nColunasNova = metodos.getMatrizResultado()[0].length;
+                        exibirImagemCinzaResultado(metodos.getMatrizResultado());
+                    }else{
+                        nLinhasNova = matrizColorida.length;
+                        nColunasNova = matrizColorida[0].length;
+                        exibirImagemColorida(matrizColorida);
+                    }
+                    salvarArquivo.setEnabled(true);
                 } catch (IOException ex) {
                     Logger.getLogger(IUPrincipal.class.getName()).log(Level.SEVERE, null, ex);
                     JOptionPane.showMessageDialog(this, "Erro na leitura do arquivo " + ex);
