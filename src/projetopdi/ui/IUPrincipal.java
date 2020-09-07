@@ -40,6 +40,8 @@ public class IUPrincipal extends javax.swing.JFrame {
     private int nLinhas = 0;
     private int nColunas = 0;
     private int nLinhasNova, nColunasNova;
+    Rgb[][] matrizColorida = new Rgb[nLinhas][nColunas];
+    
 
     /**
      * Creates new form IUPrincipal
@@ -468,6 +470,7 @@ public class IUPrincipal extends javax.swing.JFrame {
                     salvarArquivo(matrizR, "Arquivo Vermelho - R");
                     salvarArquivo(matrizG, "Arquivo Verde - G");
                     salvarArquivo(matrizB, "Arquivo Azul - B");
+                    JOptionPane.showMessageDialog(this, "Arquivos salvos!!!");
 
                 } else {
                     JOptionPane.showMessageDialog(this, "Abra um arquivo antes");
@@ -484,18 +487,7 @@ public class IUPrincipal extends javax.swing.JFrame {
                 salvarArquivo(matrizC, "Arquivo Ciano - C");
                 salvarArquivo(matrizM, "Arquivo Magento - M");
                 salvarArquivo(matrizY, "Arquivo Amarelo - Y");
-            } else if (resultado == "Separar HSI") {
-                metodos2.seprarHSI();
-                int matrizH[][] = new int[metodos2.getnLinhas()][metodos2.getnColunas()];
-                matrizH = metodos2.getMatrizH();
-                int matrizS[][] = new int[metodos2.getnLinhas()][metodos2.getnColunas()];
-                matrizS = metodos2.getMatrizS();
-                int matrizI[][] = new int[metodos2.getnLinhas()][metodos2.getnColunas()];
-                matrizI = metodos2.getMatrizI();
-
-                salvarArquivo(matrizH, "Arquivo Hue - H");
-                salvarArquivo(matrizS, "Arquivo Saturação - S");
-                salvarArquivo(matrizI, "Arquivo Intensidade - I");
+                JOptionPane.showMessageDialog(this, "Arquivos salvos!!!");
             } else if (resultado == "Cinza - RGB") {
                 int returnValR = fileChooserR.showOpenDialog(this);
                 int returnValG = fileChooserG.showOpenDialog(this);
@@ -559,15 +551,6 @@ public class IUPrincipal extends javax.swing.JFrame {
                             }
                         }
 
-                        for (int i = 0; i < nLinhas; i++) {
-                            for (int j = 0; j < nColunas; j++) {
-                                System.out.println("Linha: " + i + " Coluna: " + j);
-                                System.out.println("R: " + matriz[i][j].getR());
-                                System.out.println("G: " + matriz[i][j].getG());
-                                System.out.println("B: " + matriz[i][j].getB());
-                            }
-                        }
-
                     } catch (FileNotFoundException ex) {
                         Logger.getLogger(IUPrincipal.class.getName()).log(Level.SEVERE, null, ex);
                     } catch (IOException ex) {
@@ -628,8 +611,14 @@ public class IUPrincipal extends javax.swing.JFrame {
                                 case "escrever":
                                     //Comando para escrita de um arquivo
                                     if (nLinhas > 0) {
-                                        System.out.println("Escrever no arquivo >> " + linha[1]);
-                                        salvarArquivoCaminho(linha[1], linha[2], metodos.getMatrizResultado());
+                                        if(pgmPPM){
+                                            System.out.println("Escrever no arquivo PPM>> " + linha[1] + "\\" + linha[2]);
+                                            salvarArquivoPPm(matrizColorida, linha[1], linha[2]);
+                                        }
+                                        else{
+                                            System.out.println("Escrever no arquivo PGM>> " + linha[1] + "\\" + linha[2]);
+                                            salvarArquivoCaminho(linha[1], linha[2], metodos.getMatrizResultado());
+                                        }
                                     } else {
                                         JOptionPane.showMessageDialog(this, "O arquivo deve abrir uma imagem para poder salvar");
                                     }
@@ -856,11 +845,11 @@ public class IUPrincipal extends javax.swing.JFrame {
                                         nColunasNova = metodos.getMatrizResultado()[0].length;
                                     }
                                     break;
-                                case "extrairRGB":
+                                case "extrairrgb":
                                     //Comando para extrair os canais RGB
                                     System.out.println("Extrair canais RGB");
 
-                                    //Se há uma imagem aberta e se é do tipo PPM (cinza)
+                                    //Se há uma imagem aberta e se é do tipo PPM (colorida)
                                     if ((nLinhas > 0) && (pgmPPM)) {
                                         metodos2.separarRGB();
                                         int matrizR[][] = new int[metodos2.getnLinhas()][metodos2.getnColunas()];
@@ -873,13 +862,16 @@ public class IUPrincipal extends javax.swing.JFrame {
                                         salvarArquivoCaminho(linha[2], linha[1], matrizR);
                                         salvarArquivoCaminho(linha[3], linha[1], matrizG);
                                         salvarArquivoCaminho(linha[4], linha[1], matrizB);
+                                        
+                                        pgmPPM = false;
+                                        JOptionPane.showMessageDialog(this, "Arquivos salvos!!!");
                                     }
                                     break;
-                                case "extrairCMY":
+                                case "extraircmy":
                                     //Comando para extrair os canais CMY
                                     System.out.println("Extrair CMY");
 
-                                    //Se há uma imagem aberta e se é do tipo PPM (cinza)
+                                    //Se há uma imagem aberta e se é do tipo PPM (colorida)
                                     if ((nLinhas > 0) && (pgmPPM)) {
                                         metodos2.separaCMY();
                                         int matrizC[][] = new int[metodos2.getnLinhas()][metodos2.getnColunas()];
@@ -892,9 +884,14 @@ public class IUPrincipal extends javax.swing.JFrame {
                                         salvarArquivoCaminho(linha[2], linha[1], matrizC);
                                         salvarArquivoCaminho(linha[3], linha[1], matrizM);
                                         salvarArquivoCaminho(linha[4], linha[1], matrizY);
+                                        
+                                        pgmPPM = false;
+                                        
+                                        JOptionPane.showMessageDialog(this, "Arquivos salvos!!!");
                                     }
                                     break;
-                                case "comporRGB":
+                                case "comporrgb":
+                                    System.out.println("Compor canais RGB");
                                     String linhaR = "";
                                     String linhaG = "";
                                     String linhaB = "";
@@ -926,7 +923,7 @@ public class IUPrincipal extends javax.swing.JFrame {
 
                                     int limite = Integer.parseInt(linhaR);
 
-                                    Rgb[][] matriz = new Rgb[nLinhas][nColunas];
+                                    matrizColorida = new Rgb[nLinhas][nColunas];
 
                                     for (int i = 0; i < nLinhas; i++) {
                                         for (int j = 0; j < nColunas; j++) {
@@ -939,9 +936,14 @@ public class IUPrincipal extends javax.swing.JFrame {
                                             novo.setG(Integer.parseInt(linhaG));
                                             novo.setB(Integer.parseInt(linhaB));
 
-                                            matriz[i][j] = novo;
+                                            matrizColorida[i][j] = novo;
                                         }
                                     }
+                                    
+                                    nLinhasNova = matrizColorida.length;
+                                    nColunasNova = matrizColorida[0].length;
+                                    exibirImagemColorida(matrizColorida);
+                                    pgmPPM = true;
                                     break;
                                 default:
                                     break;
@@ -949,9 +951,9 @@ public class IUPrincipal extends javax.swing.JFrame {
                         }
                         //metodos.matrizOriginalRecebeMatrizResultado();
                     }
-                    nLinhasNova = metodos.getMatrizResultado().length;
-                    nColunasNova = metodos.getMatrizResultado()[0].length;
-                    exibirImagemCinzaResultado(metodos.getMatrizResultado());
+//                    nLinhasNova = metodos.getMatrizResultado().length;
+//                    nColunasNova = metodos.getMatrizResultado()[0].length;
+//                    exibirImagemCinzaResultado(metodos.getMatrizResultado());
                 } catch (IOException ex) {
                     Logger.getLogger(IUPrincipal.class.getName()).log(Level.SEVERE, null, ex);
                     JOptionPane.showMessageDialog(this, "Erro na leitura do arquivo " + ex);
@@ -1040,6 +1042,41 @@ public class IUPrincipal extends javax.swing.JFrame {
             }
 
             salvar.close();
+        } catch (IOException ex) {
+            Logger.getLogger(IUPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public void salvarArquivoPPm(Rgb[][] matriz, String caminho, String nome) {
+        System.out.println("Começar a salvar arquivo");
+        File salvarArquivo = new File(caminho + "/"+ nome + ".ppm");
+        try {
+            OutputStream salvar = new FileOutputStream(salvarArquivo.getPath());
+            String linha = "P3\n" + matriz.length + " " + matriz[0].length + "\n" + 255 + "\n";
+            byte[] salvando = linha.getBytes();
+            salvar.write(salvando);
+
+            for (int i = 0; i < nLinhas; i++) {
+                for (int j = 0; j < nColunas; j++) {
+                    salvando = String.valueOf(matriz[i][j].getR()).getBytes();
+                    salvar.write(salvando);
+                    salvando = "\n".getBytes();
+                    salvar.write(salvando);
+                    
+                    salvando = String.valueOf(matriz[i][j].getG()).getBytes();
+                    salvar.write(salvando);
+                    salvando = "\n".getBytes();
+                    salvar.write(salvando);
+                    
+                    salvando = String.valueOf(matriz[i][j].getB()).getBytes();
+                    salvar.write(salvando);
+                    salvando = "\n".getBytes();
+                    salvar.write(salvando);
+                }
+            }
+
+            salvar.close();
+            System.out.println("Gravou arquivo PPM");
         } catch (IOException ex) {
             Logger.getLogger(IUPrincipal.class.getName()).log(Level.SEVERE, null, ex);
         }
