@@ -7,7 +7,7 @@ O projeto possui 2 pacotes principais:
     
 Quando uma imagem é lida, seja pelo processo sequencial ou comandos em arquivos de texto, descritos mais à frente, ela é armazenada na variável ‘matriz’ na classe MetodosCinza, essa matriz é responsável por armazenar a imagem original e após cada transformação, a nova imagem é armazenada em ‘matrizResultado’ para que a imagem original não seja perdida.
 Ainda na classe MetodosCinza, todos os atributos da imagem são armazenados, como tipo do arquivo, número de linhas e colunas além dos métodos disponíveis para serem executados em arquivos do tipo PGM. Os métodos disponíveis nesta classe são:
-- public MetodosCinza(String nomeArquivo) - controlador, responsável pela leitura da imagem e armazenamento, recebe o arquivo que será lido;
+- public MetodosCinza(String nomeArquivo) - construtor, responsável pela leitura da imagem e armazenamento, recebe o arquivo que será lido;
 - public void printMatriz() - função auxiliar na classe, que imprime no console a imagem original e resultado;
 - public void matrizResultadoNovaMatriz() - função responsável por trocar a imagem resultado para a original, no caso de mais de um processamento na imagem;
 - public void negativoMatriz() - método que transforma a imagem armazenada em negativa;
