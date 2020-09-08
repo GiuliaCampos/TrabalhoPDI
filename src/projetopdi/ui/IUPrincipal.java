@@ -41,7 +41,6 @@ public class IUPrincipal extends javax.swing.JFrame {
     private int nColunas = 0;
     private int nLinhasNova, nColunasNova;
     Rgb[][] matrizColorida = new Rgb[nLinhas][nColunas];
-    
 
     /**
      * Creates new form IUPrincipal
@@ -91,7 +90,7 @@ public class IUPrincipal extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        metodoSelecionadoCinza.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Escurecer Imagem", "Clarear Imagem", "Girar Imagem", "Tornar Negativo", "Fatiamento", "Transf. Gama", "Flip Horizontal", "Equalização de Histograma", "Laplaciano (4 ao centro)", "Laplaciano (8 ao centro)", "Media", "Mediana", "Binarização" }));
+        metodoSelecionadoCinza.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Escurecer Imagem", "Clarear Imagem", "Girar Imagem", "Tornar Negativo", "Fatiamento", "Transf. Gama", "Flip Horizontal", "Equalização de Histograma", "Laplaciano (4 ao centro)", "Laplaciano (8 ao centro)", "Media", "Mediana", "Binarização", "Somar Imagem com a Original", "Subtrair Imagem da Original", "Compor Canais RGB" }));
         metodoSelecionadoCinza.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 metodoSelecionadoCinzaActionPerformed(evt);
@@ -117,7 +116,7 @@ public class IUPrincipal extends javax.swing.JFrame {
             }
         });
 
-        metodoSelecionadoColorido.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Separar RGB", "Separar CMY", "Separar HSI" }));
+        metodoSelecionadoColorido.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Separar RGB", "Separar CMY" }));
 
         jMenu1.setText("Menu");
 
@@ -259,6 +258,8 @@ public class IUPrincipal extends javax.swing.JFrame {
         //Media
         //Mediana
         //Binarização
+        //Somar Imagem com a Original
+        //Subtrair Imagem da Original
         String resultado;
         if (!pgmPPM) { //Imagem Cinza
             resultado = (String) metodoSelecionadoCinza.getSelectedItem();
@@ -451,7 +452,27 @@ public class IUPrincipal extends javax.swing.JFrame {
                 nLinhasNova = metodos.getMatrizResultado().length;
                 nColunasNova = metodos.getMatrizResultado()[0].length;
                 exibirImagemCinzaResultado(metodos.getMatrizResultado());
-            } //------------------------------------------Métodos Coloridos----------------------------------------------------------------------------------------------
+            } else if (resultado == "Somar Imagem com a Original") {
+                if (metodos.getMatrizResultado().length > 3) {
+                    metodos.somarImagens();
+                    nLinhasNova = metodos.getMatrizResultado().length;
+                    nColunasNova = metodos.getMatrizResultado()[0].length;
+                    exibirImagemCinzaResultado(metodos.getMatrizResultado());
+                } else {
+                    JOptionPane.showMessageDialog(this, "Para somar é necessário fazer uma transformação antes");
+                }
+
+            } else if (resultado == "Subtrair Imagem da Original") {
+                if (metodos.getMatrizResultado().length > 3) {
+                    metodos.subtrairImagens();
+                    nLinhasNova = metodos.getMatrizResultado().length;
+                    nColunasNova = metodos.getMatrizResultado()[0].length;
+                    exibirImagemCinzaResultado(metodos.getMatrizResultado());
+                } else {
+                    JOptionPane.showMessageDialog(this, "Para subrair é necessário fazer uma transformação antes");
+                }
+
+            }//------------------------------------------Métodos Coloridos----------------------------------------------------------------------------------------------
             //Métodos Coloridos disponíveis:
             //Separar RGB
             //Separar CMY
@@ -488,7 +509,10 @@ public class IUPrincipal extends javax.swing.JFrame {
                 salvarArquivo(matrizM, "Arquivo Magento - M");
                 salvarArquivo(matrizY, "Arquivo Amarelo - Y");
                 JOptionPane.showMessageDialog(this, "Arquivos salvos!!!");
-            } else if (resultado == "Cinza - RGB") {
+            } else if (resultado == "Compor Canais RGB") {
+                fileChooserR.setDialogTitle("Selecione um arquivo para o canal - VERMELHO");
+                fileChooserG.setDialogTitle("Selecione um arquivo para o canal - VERDE");
+                fileChooserB.setDialogTitle("Selecione um arquivo para o canal - AZUL");
                 int returnValR = fileChooserR.showOpenDialog(this);
                 int returnValG = fileChooserG.showOpenDialog(this);
                 int returnValB = fileChooserB.showOpenDialog(this);
@@ -551,6 +575,46 @@ public class IUPrincipal extends javax.swing.JFrame {
                             }
                         }
 
+                        JFileChooser salvandoArquivo = new JFileChooser();
+                        salvandoArquivo.setDialogTitle("Salvar Arquivo PPM");
+                        int opt = salvandoArquivo.showSaveDialog(this);
+                        if (opt != JFileChooser.APPROVE_OPTION) {
+                            return;
+                        }
+                        File salvarArquivoEscolhido = salvandoArquivo.getSelectedFile();
+                        File salvarArquivo = new File(salvarArquivoEscolhido.getPath() + ".ppm");
+
+                        try {
+                            OutputStream salvar = new FileOutputStream(salvarArquivo.getPath());
+                            String linha = "P3\n" + matriz.length + " " + matriz[0].length + "\n" + 255 + "\n";
+                            byte[] salvando = linha.getBytes();
+                            salvar.write(salvando);
+
+                            for (int i = 0; i < nLinhas; i++) {
+                                for (int j = 0; j < nColunas; j++) {
+                                    salvando = String.valueOf(matriz[i][j].getR()).getBytes();
+                                    salvar.write(salvando);
+                                    salvando = "\n".getBytes();
+                                    salvar.write(salvando);
+
+                                    salvando = String.valueOf(matriz[i][j].getG()).getBytes();
+                                    salvar.write(salvando);
+                                    salvando = "\n".getBytes();
+                                    salvar.write(salvando);
+
+                                    salvando = String.valueOf(matriz[i][j].getB()).getBytes();
+                                    salvar.write(salvando);
+                                    salvando = "\n".getBytes();
+                                    salvar.write(salvando);
+                                }
+                            }
+
+                            salvar.close();
+                            JOptionPane.showMessageDialog(this, "Arquivo pronto!");
+                        } catch (IOException ex) {
+                            Logger.getLogger(IUPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+
                     } catch (FileNotFoundException ex) {
                         Logger.getLogger(IUPrincipal.class.getName()).log(Level.SEVERE, null, ex);
                     } catch (IOException ex) {
@@ -600,7 +664,7 @@ public class IUPrincipal extends javax.swing.JFrame {
 
                     for (String linha1 : linhas) {
                         String[] linha = linha1.split(" "); //Recebe cada linha
-                        
+
                         if (null != linha[0]) {
                             switch (linha[0].toLowerCase()) {
                                 case "leitura":
@@ -611,11 +675,10 @@ public class IUPrincipal extends javax.swing.JFrame {
                                 case "escrever":
                                     //Comando para escrita de um arquivo
                                     if (nLinhas > 0) {
-                                        if(pgmPPM){
+                                        if (pgmPPM) {
                                             System.out.println("Escrever no arquivo PPM>> " + linha[1] + "\\" + linha[2]);
                                             salvarArquivoPPm(matrizColorida, linha[1], linha[2]);
-                                        }
-                                        else{
+                                        } else {
                                             System.out.println("Escrever no arquivo PGM>> " + linha[1] + "\\" + linha[2]);
                                             salvarArquivoCaminho(linha[1], linha[2], metodos.getMatrizResultado());
                                         }
@@ -672,7 +735,9 @@ public class IUPrincipal extends javax.swing.JFrame {
                                     System.out.println("Negativo");
 
                                     //Se há uma imagem aberta e se é do tipo PGM (cinza)
-                                    if ((nLinhas > 0) && (pgmPPM == false)) metodos.negativoMatriz();
+                                    if ((nLinhas > 0) && (pgmPPM == false)) {
+                                        metodos.negativoMatriz();
+                                    }
                                     break;
                                 case "fatiamento":
                                     //Comando para fatiamento de uma imagem mantendo os valores de fora do intervalo
@@ -862,7 +927,7 @@ public class IUPrincipal extends javax.swing.JFrame {
                                         metodos.mediana(filtro);
                                         nLinhasNova = metodos.getMatrizResultado().length;
                                         nColunasNova = metodos.getMatrizResultado()[0].length;
-                                        metodos.matrizOriginalRecebeMatrizResultado();  
+                                        metodos.matrizOriginalRecebeMatrizResultado();
                                     }
                                     break;
                                 case "extrairrgb":
@@ -882,7 +947,7 @@ public class IUPrincipal extends javax.swing.JFrame {
                                         salvarArquivoCaminho(linha[2], linha[1], matrizR);
                                         salvarArquivoCaminho(linha[3], linha[1], matrizG);
                                         salvarArquivoCaminho(linha[4], linha[1], matrizB);
-                                        
+
                                         pgmPPM = false;
                                         JOptionPane.showMessageDialog(this, "Arquivos salvos!!!");
                                     }
@@ -904,9 +969,9 @@ public class IUPrincipal extends javax.swing.JFrame {
                                         salvarArquivoCaminho(linha[2], linha[1], matrizC);
                                         salvarArquivoCaminho(linha[3], linha[1], matrizM);
                                         salvarArquivoCaminho(linha[4], linha[1], matrizY);
-                                        
+
                                         pgmPPM = false;
-                                        
+
                                         JOptionPane.showMessageDialog(this, "Arquivos salvos!!!");
                                     }
                                     break;
@@ -959,7 +1024,7 @@ public class IUPrincipal extends javax.swing.JFrame {
                                             matrizColorida[i][j] = novo;
                                         }
                                     }
-                                    
+
 //                                    nLinhasNova = matrizColorida.length;
 //                                    nColunasNova = matrizColorida[0].length;
 //                                    exibirImagemColorida(matrizColorida);
@@ -971,11 +1036,11 @@ public class IUPrincipal extends javax.swing.JFrame {
                         }
                         //metodos.matrizOriginalRecebeMatrizResultado();
                     }
-                    if(!pgmPPM){
+                    if (!pgmPPM) {
                         nLinhasNova = metodos.getMatrizResultado().length;
                         nColunasNova = metodos.getMatrizResultado()[0].length;
                         exibirImagemCinzaResultado(metodos.getMatrizResultado());
-                    }else{
+                    } else {
                         nLinhasNova = matrizColorida.length;
                         nColunasNova = matrizColorida[0].length;
                         exibirImagemColorida(matrizColorida);
@@ -1073,10 +1138,10 @@ public class IUPrincipal extends javax.swing.JFrame {
             Logger.getLogger(IUPrincipal.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
     public void salvarArquivoPPm(Rgb[][] matriz, String caminho, String nome) {
         System.out.println("Começar a salvar arquivo");
-        File salvarArquivo = new File(caminho + "/"+ nome + ".ppm");
+        File salvarArquivo = new File(caminho + "/" + nome + ".ppm");
         try {
             OutputStream salvar = new FileOutputStream(salvarArquivo.getPath());
             String linha = "P3\n" + matriz.length + " " + matriz[0].length + "\n" + 255 + "\n";
@@ -1089,12 +1154,12 @@ public class IUPrincipal extends javax.swing.JFrame {
                     salvar.write(salvando);
                     salvando = "\n".getBytes();
                     salvar.write(salvando);
-                    
+
                     salvando = String.valueOf(matriz[i][j].getG()).getBytes();
                     salvar.write(salvando);
                     salvando = "\n".getBytes();
                     salvar.write(salvando);
-                    
+
                     salvando = String.valueOf(matriz[i][j].getB()).getBytes();
                     salvar.write(salvando);
                     salvando = "\n".getBytes();
@@ -1141,7 +1206,7 @@ public class IUPrincipal extends javax.swing.JFrame {
             metodos = new MetodosCinza(caminho);
             nLinhas = metodos.getnLinhas();
             nColunas = metodos.getnColunas();
-            
+
             exibirImagemCinza(metodos.getMatriz());
             metodoSelecionadoCinza.setEnabled(false);
             metodoSelecionadoColorido.setEnabled(false);
