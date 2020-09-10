@@ -140,7 +140,7 @@
     <Component class="javax.swing.JComboBox" name="metodoSelecionadoCinza">
       <Properties>
         <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-          <StringArray count="16">
+          <StringArray count="17">
             <StringItem index="0" value="Escurecer Imagem"/>
             <StringItem index="1" value="Clarear Imagem"/>
             <StringItem index="2" value="Girar Imagem"/>
@@ -157,6 +157,7 @@
             <StringItem index="13" value="Somar Imagem com a Original"/>
             <StringItem index="14" value="Subtrair Imagem da Original"/>
             <StringItem index="15" value="Compor Canais RGB"/>
+            <StringItem index="16" value="High-Boost"/>
           </StringArray>
         </Property>
       </Properties>

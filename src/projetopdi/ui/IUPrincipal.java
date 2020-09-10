@@ -90,7 +90,7 @@ public class IUPrincipal extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        metodoSelecionadoCinza.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Escurecer Imagem", "Clarear Imagem", "Girar Imagem", "Tornar Negativo", "Fatiamento", "Transf. Gama", "Flip Horizontal", "Equalização de Histograma", "Laplaciano (4 ao centro)", "Laplaciano (8 ao centro)", "Media", "Mediana", "Binarização", "Somar Imagem com a Original", "Subtrair Imagem da Original", "Compor Canais RGB" }));
+        metodoSelecionadoCinza.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Escurecer Imagem", "Clarear Imagem", "Girar Imagem", "Tornar Negativo", "Fatiamento", "Transf. Gama", "Flip Horizontal", "Equalização de Histograma", "Laplaciano (4 ao centro)", "Laplaciano (8 ao centro)", "Media", "Mediana", "Binarização", "Somar Imagem com a Original", "Subtrair Imagem da Original", "Compor Canais RGB", "High-Boost" }));
         metodoSelecionadoCinza.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 metodoSelecionadoCinzaActionPerformed(evt);
@@ -472,6 +472,29 @@ public class IUPrincipal extends javax.swing.JFrame {
                     JOptionPane.showMessageDialog(this, "Para subrair é necessário fazer uma transformação antes");
                 }
 
+            }else if(resultado == "High-Boost"){
+                int valor = Integer.parseInt(JOptionPane.showInputDialog(this, "Valor para borrar a imagem"));
+                metodos.media(valor);
+                metodos.subtrairImagens();
+                //mascara pronta, agora valor de k
+                int k = Integer.parseInt(JOptionPane.showInputDialog(this, "Insira valor de k"));
+                
+                int matrizAuxiliar[][] = metodos.getMatrizResultado();
+                
+                for(int i = 0; i < nLinhas; i++){
+                    for(int j = 0; j < nColunas; j++){
+                        matrizAuxiliar[i][j] = metodos.getMatrizResultado()[i][j] * k;
+                    }
+                }
+                
+                metodos.setMatrizResultado(matrizAuxiliar);
+                
+                metodos.somarImagens();
+                
+                nLinhasNova = metodos.getMatrizResultado().length;
+                nColunasNova = metodos.getMatrizResultado()[0].length;
+                exibirImagemCinzaResultado(metodos.getMatrizResultado());
+                
             }//------------------------------------------Métodos Coloridos----------------------------------------------------------------------------------------------
             //Métodos Coloridos disponíveis:
             //Separar RGB
